@@ -93,7 +93,7 @@ function savePage(sContent, sPath, sMode) {
   }
 }
 
-// check is rir exists
+// check is dir exists
 function ensureDirectoryExistence(filePath) {
   var dirname = path.dirname(filePath);
   if (fs.existsSync(dirname)) {
@@ -151,18 +151,16 @@ function createTablePage(oSrc, sMod) {
     
     var sLink = (sURL)? "<a href='"+sURL+"'>"+sSource+"</a>": sSource;
     var sRandomizer = "<a href='https://tentaculus.ru/random/#item="+sRandom+"'>Смотреть в рандомизаторе</a>";
-    var sGoback = "<a href='#'>Статьи</a><small style='color: #999'>></small><a href='#tables'>Таблицы</a>";
+    var sGoback = "<a href='/articles'>Статьи</a><small style='color: #999'>></small><a href='/articles/tables'>Таблицы</a>";
     
     var sContent = "<h1>"+sTitle+"</h1>"+
                    sGoback + 
-                   "<img src='img/"+sImage+"' style='width: 100%'>"+
+                   "<img src='articles/img/"+sImage+"' style='width: 100%'>"+
                    aTables.join("") + 
                    sGoback + 
                    "<p>Источник: "+sLink+"</p>" + 
                    "<p>"+sRandomizer+"</p>";
                    
-    //document.title = sTitle;
-    //placeContent(sContent);
     let sPage = createPage(sTemplate, sContent, sTitle);
     savePage(sPage, sPathToTablestOutput + "/"+sRandom+".html");
   }
@@ -199,7 +197,12 @@ function createTexts(sSourcePath, sOutputPath) {
 
       const $ = cheerio.load(fileContent.toString());
       const title = $("h1").text();
-      const page = createPage(sTemplate, $.html(), title);
+      const sGoback = "<a href='/articles'>Статьи</a><small style='color: #999'>></small><a href='/articles/text'>Тексты</a>";
+      $("p").first().before(sGoback);
+      $("p").last().after(sGoback);
+      const content = $.html();
+      
+      const page = createPage(sTemplate, content, title);
       savePage(page, sPathToTextOutput + "/" + fileName, "sinc");
     }
   });
@@ -226,7 +229,7 @@ function createTextList(sSourcePath, sOutputPath) {
     }
   });
   sGlobalTextsList = getTextsList(result);
-  const sPage = createPage(sTemplate, sGlobalTextsList, "Статьи");
+  const sPage = createPage(sTemplate, sGlobalTextsList, "Тексты");
   savePage(sPage, sPathToTextOutput + "/index.html");
 }
 

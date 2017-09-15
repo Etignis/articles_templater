@@ -18,6 +18,7 @@ const sTemplate = getTemplate();
 
 let sGlobalTablesList, sGlobalTextsList;
 
+// get index.html from main site and clear content
 function getTemplate(){
   const fileContent = fs.readFileSync(sPathToTmp);
   const $ = cheerio.load(fileContent.toString(), {decodeEntities: false});
@@ -27,7 +28,7 @@ function getTemplate(){
   return $.html();
 }
 
-// /articles index page
+// get list of articles with random tables
 function getTablesList() {
   var aRows = [];
   for(var i=0; RandomItems.l[i]; i++) {
@@ -46,6 +47,7 @@ function getTablesList() {
   return sTitle+"<ul>"+aRows.join("")+"</ul>";
 }
 
+// get list of articles with text
 function getTextsList(aSource) {
   let aRows = [];
 
@@ -61,7 +63,7 @@ function getTextsList(aSource) {
 }
 
 /*
- *  Insert page content into page element
+ *  Insert page content into page element (template)
  */
 function createPage(sTemplate, sContent, sTitle) {  
   var oTemplate = cheerio.load(sTemplate, {decodeEntities: false});
@@ -71,6 +73,8 @@ function createPage(sTemplate, sContent, sTitle) {
   }
   return oTemplate.html();   
 }
+
+// save page file 
 function savePage(sContent, sPath, sMode) {
   ensureDirectoryExistence(sPath);
   if(sMode == 'sinc') {
@@ -88,6 +92,8 @@ function savePage(sContent, sPath, sMode) {
     });
   }
 }
+
+// check is rir exists
 function ensureDirectoryExistence(filePath) {
   var dirname = path.dirname(filePath);
   if (fs.existsSync(dirname)) {
@@ -97,6 +103,7 @@ function ensureDirectoryExistence(filePath) {
   fs.mkdirSync(dirname);
 }
 
+// create table as content to table article
 function createTable(sTable, sMod) {
   var aTableRows = sTable.split(";");
   var nIndex = 1;
@@ -119,6 +126,8 @@ function createTable(sTable, sMod) {
   else 
     return "<ul>" + aTableRows.map(function(el){return "<li>" + el + "</li>"}).join("") + "</ul>";
 }
+
+// add title, image etc to table to create content for page
 function createTablePage(oSrc, sMod) {
     var sTitle = oSrc.title;
     var sImage = oSrc.img;
@@ -157,21 +166,22 @@ function createTablePage(oSrc, sMod) {
     let sPage = createPage(sTemplate, sContent, sTitle);
     savePage(sPage, sPathToTablestOutput + "/"+sRandom+".html");
   }
+  
+// just lopp to create article's pages with tables
 function createTables() {
   for(var i=0; RandomItems.l[i]; i++) {
     for(var j=0; RandomItems.l[i].list[j]; j++) {
       if(            
         RandomItems.l[i].list[j].fArticle == true 
-      ){          
-        //var sTitle = RandomItems.l[i].list[j].title;
-        //var sName = RandomItems.l[i].list[j].name;
+      ){         
         
-        //aRows.push("<li><a href='/tables/"+sName+"'>"+sTitle+"</a></li>")
         createTablePage(RandomItems.l[i].list[j]); 
       }
     }
   }
 }
+
+// create page with list of random tables articles
 function createTableList() {
   createTables();
   sGlobalTablesList = getTablesList();
@@ -179,6 +189,7 @@ function createTableList() {
   savePage(sPage, sPathToTablestOutput + "/index.html");
 }
 
+// loop to creat the page to each text article
 function createTexts(sSourcePath, sOutputPath) {
   console.log("Render text's articles");
   fs.readdirSync(sSourcePath).forEach(file => {
@@ -193,6 +204,8 @@ function createTexts(sSourcePath, sOutputPath) {
     }
   });
 }
+
+// create list of texts articles
 function createTextList(sSourcePath, sOutputPath) {  
   // create text articles from source
   createTexts(sPathToTextSource, sPathToTextOutput);
@@ -217,6 +230,7 @@ function createTextList(sSourcePath, sOutputPath) {
   savePage(sPage, sPathToTextOutput + "/index.html");
 }
 
+// creata main page for article part of site with list of all articles
 function createIndexPage() {
   const sPage = createPage(sTemplate, sGlobalTablesList+sGlobalTextsList);
   savePage(sPage, "../index.html");

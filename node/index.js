@@ -65,11 +65,14 @@ function getTextsList(aSource) {
 /*
  *  Insert page content into page element (template)
  */
-function createPage(sTemplate, sContent, sTitle) {  
+function createPage(sTemplate, sContent, sTitle, sImage) {  
   var oTemplate = cheerio.load(sTemplate, {decodeEntities: false});
   oTemplate("#content").html(sContent);
   if(sTitle){
     oTemplate("title").text(sTitle);
+  }
+  if(sImage){
+    oTemplate("meta[property='og:image']").attr('content', sImage);
   }
   return oTemplate.html();   
 }
@@ -161,7 +164,7 @@ function createTablePage(oSrc, sMod) {
                    "<p>Источник: "+sLink+"</p>" + 
                    "<p>"+sRandomizer+"</p>";
                    
-    let sPage = createPage(sTemplate, sContent, sTitle);
+    let sPage = createPage(sTemplate, sContent, sTitle, "articles/img/"+sImage);
     savePage(sPage, sPathToTablestOutput + "/"+sRandom+".html");
   }
   
@@ -197,12 +200,13 @@ function createTexts(sSourcePath, sOutputPath) {
 
       const $ = cheerio.load(fileContent.toString());
       const title = $("h1").text();
+      const img = $("img")? $("img").attr('src') : null;
       const sGoback = "<a href='/articles'>Статьи</a><small style='color: #999'>></small><a href='/articles/text'>Тексты</a>";
       $("p").first().before(sGoback);
       $("p").last().after(sGoback);
       const content = $.html();
       
-      const page = createPage(sTemplate, content, title);
+      const page = createPage(sTemplate, content, title, img);
       savePage(page, sPathToTextOutput + "/" + fileName, "sinc");
     }
   });

@@ -16,6 +16,8 @@ const htmlExt = '.html';
 const sPathToOutput = '../';
 const sTemplate = getTemplate();
 
+const sGoBackDelimiter = "→";
+
 let sGlobalTablesList, sGlobalTextsList;
 
 // get index.html from main site and clear content
@@ -65,16 +67,34 @@ function getTextsList(aSource) {
 /*
  *  Insert page content into page element (template)
  */
-function createPage(sTemplate, sContent, sTitle, sImage) {  
+function createPage(sTemplate, sContent, sTitle, oImage) {  
   var oTemplate = cheerio.load(sTemplate, {decodeEntities: false});
   oTemplate("#content").html(sContent);
   if(sTitle){
     oTemplate("title").text(sTitle);
+    oTemplate("meta[property='og:title']").attr('content', sTitle);   
+    oTemplate("meta[property='og:description']").attr('content', sTitle);   
   }
-  if(sImage){
-    oTemplate("meta[property='og:image']").attr('content', sImage);
+  if(oImage){
+    if(typeof oImage == "string") {
+      oTemplate("meta[property='og:image']").attr('content', sImage);       
+    }
+    if(Array.isArray(oImage)) {
+      oImage.forEach(function(img, i){
+        insertMetaImage(oTemplate, img, i);
+      });
+    }
   }
   return oTemplate.html();   
+}
+
+// check & add OG images
+function insertMetaImage($, sPath, nIndex){
+  if($("meta[property='og:image']").eq(nIndex).length > 0) {
+    $("meta[property='og:image']").eq(nIndex).attr('content', sPath);
+  } else {
+    $("meta[property='og:type']").before('<meta property="og:image" content="'+sPath+'">\n');
+  }
 }
 
 // save page file 
@@ -116,15 +136,30 @@ function createTable(sTable, sMod) {
       var sCount = nIndex;
       if(aCount && aCount[1]){
         var nCount = Number(aCount[1]);
-        sCount += " - "+(Number(nIndex)-1+Number(nCount));
+        sCount += "-"+(Number(nIndex)-1+Number(nCount));
         nIndex+=nCount;
         el = el.replace(/\s*{{\d+}}\s*/, "");
       } else{
         nIndex++;
       }
-      return "<span class='numeric'>"+sCount + ".</span> "  + el.trim();
+      return "<span class='numeric'>"+sCount + "</span> "  + el.trim();
     })
     return "<ul>" + aTableRows.map(function(el){return "<li>" + el + "</li>"}).join("") + "</ul>";
+  } else if(sMod == "numericTable"){
+    aTableRows = aTableRows.map(function(el){
+      var aCount = el.match(/{{(\d+)}}/)
+      var sCount = nIndex;
+      if(aCount && aCount[1]){
+        var nCount = Number(aCount[1]);
+        sCount += "-"+(Number(nIndex)-1+Number(nCount));
+        nIndex+=nCount;
+        el = el.replace(/\s*{{\d+}}\s*/, "");
+      } else{
+        nIndex++;
+      }
+      return "<td>"+sCount + "</td><td> "  + el.trim() + "</td>";
+    })
+    return "<table class='randomTable'>" + aTableRows.map(function(el){return "<tr>" + el + "</tr>"}).join("") + "</table>";
   }
   else 
     return "<ul>" + aTableRows.map(function(el){return "<li>" + el + "</li>"}).join("") + "</ul>";
@@ -133,7 +168,7 @@ function createTable(sTable, sMod) {
 // add title, image etc to table to create content for page
 function createTablePage(oSrc, sMod) {
     var sTitle = oSrc.title;
-    var sImage = oSrc.img;
+    var sImage = "articles/img/"+oSrc.img;
     var sSource = oSrc.tooltip;
     var sURL = oSrc.url;
     var sRandom = oSrc.name;
@@ -145,7 +180,7 @@ function createTablePage(oSrc, sMod) {
         if(oSrc.src[i].name == el) {
           var sTable = oSrc.src[i].l;
           
-          aTables.push(createTable(sTable, "numeric"));
+          aTables.push(createTable(sTable, "numericTable"));
           
           break;
         }
@@ -154,17 +189,23 @@ function createTablePage(oSrc, sMod) {
     
     var sLink = (sURL)? "<a href='"+sURL+"'>"+sSource+"</a>": sSource;
     var sRandomizer = "<a href='https://tentaculus.ru/random/#item="+sRandom+"'>Смотреть в рандомизаторе</a>";
-    var sGoback = "<a href='/articles'>Статьи</a><small style='color: #999'>></small><a href='/articles/tables'>Таблицы</a>";
+    var sGoback = "<p><a href='/articles'>Статьи</a><span style='color: #999'>"+sGoBackDelimiter+"</span><a href='/articles/tables'>Таблицы</a></p>";
+    
+    const img_300 = sImage.replace(".","__300.");
+    const img_500 = sImage.replace(".","__500.");
+    const img_800 = sImage.replace(".","__800.");
+    const aImg = [sImage, img_800, img_500, img_300];
     
     var sContent = "<h1>"+sTitle+"</h1>"+
                    sGoback + 
-                   "<img src='articles/img/"+sImage+"' style='width: 100%'>"+
+                   "<img src='articles/img/"+img_300+"' srcset='"+img_500+" 500w, "+img_800+" 800w, "+sImage+" 2000w' style='width: 100%'>"+
                    aTables.join("") + 
+                   "<hr>"+
                    sGoback + 
                    "<p>Источник: "+sLink+"</p>" + 
                    "<p>"+sRandomizer+"</p>";
                    
-    let sPage = createPage(sTemplate, sContent, sTitle, "articles/img/"+sImage);
+    let sPage = createPage(sTemplate, sContent, sTitle, aImg);
     savePage(sPage, sPathToTablestOutput + "/"+sRandom+".html");
   }
   
@@ -201,12 +242,22 @@ function createTexts(sSourcePath, sOutputPath) {
       const $ = cheerio.load(fileContent.toString());
       const title = $("h1").text();
       const img = $("img")? $("img").attr('src') : null;
-      const sGoback = "<a href='/articles'>Статьи</a><small style='color: #999'>></small><a href='/articles/text'>Тексты</a>";
+      
+      const img_300 = img.replace(".","__300.");
+      const img_500 = img.replace(".","__500.");
+      const img_800 = img.replace(".","__800.");
+      const aImg = [img, img_800, img_500, img_300];
+      if($("img").length > 0) {
+        $("img").attr('src', img_300);
+        $("img").attr('srcset', img_500+" 500w, "+img_800+" 800w");        
+      }
+      
+      const sGoback = "<p><a href='/articles'>Статьи</a><span style='color: #999'>"+sGoBackDelimiter+"</span><a href='/articles/text'>Тексты</a></p>";
       $("p").first().before(sGoback);
-      $("p").last().after(sGoback);
+      $("p").last().after("<hr>"+sGoback);
       const content = $.html();
       
-      const page = createPage(sTemplate, content, title, img);
+      const page = createPage(sTemplate, content, title, aImg);
       savePage(page, sPathToTextOutput + "/" + fileName, "sinc");
     }
   });
@@ -214,8 +265,6 @@ function createTexts(sSourcePath, sOutputPath) {
 
 // create list of texts articles
 function createTextList(sSourcePath, sOutputPath) {  
-  // create text articles from source
-  createTexts(sPathToTextSource, sPathToTextOutput);
 
   let result = [];
   fs.readdirSync(sSourcePath).forEach(file => {
@@ -246,6 +295,9 @@ function createIndexPage() {
 // table's list 
 createTableList();
 
+// create text articles from source
+createTexts(sPathToTextSource, sPathToTextOutput);
+  
 // text's list 
 createTextList(sPathToTextOutput, sPathToTextOutput);
 

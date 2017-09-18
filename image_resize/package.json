@@ -12,6 +12,7 @@
   "dependencies": {
     "cheerio": "^1.0.0-rc.2",
     "yargs": "^8.0.2",
-    "gm": "^1.23.0 "
+    "gm": "^1.23.0",
+    "child_process": "^1.0.2"
   }
 }

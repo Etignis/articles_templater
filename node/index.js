@@ -168,7 +168,7 @@ function createTable(sTable, sMod) {
 // add title, image etc to table to create content for page
 function createTablePage(oSrc, sMod) {
     var sTitle = oSrc.title;
-    var sImage = "articles/img/"+oSrc.img;
+    var sImage = oSrc.img? "articles/img/"+oSrc.img : null;
     var sSource = oSrc.tooltip;
     var sURL = oSrc.url;
     var sRandom = oSrc.name;
@@ -191,14 +191,20 @@ function createTablePage(oSrc, sMod) {
     var sRandomizer = "<a href='https://tentaculus.ru/random/#item="+sRandom+"'>Смотреть в рандомизаторе</a>";
     var sGoback = "<p><a href='/articles'>Статьи</a><span style='color: #999'>"+sGoBackDelimiter+"</span><a href='/articles/tables'>Таблицы</a></p>";
     
-    const img_300 = sImage.replace(".","__300.");
-    const img_500 = sImage.replace(".","__500.");
-    const img_800 = sImage.replace(".","__800.");
-    const aImg = [sImage, img_800, img_500, img_300];
+    let img = "";
+    let aImg = [];
+    if(sImage){
+      const img_300 = sImage.replace(".","__300.");
+      const img_500 = sImage.replace(".","__500.");
+      const img_800 = sImage.replace(".","__800.");
+      aImg = [sImage, img_800, img_500, img_300];
+      
+      img =  "<img src='"+img_300+"' srcset='"+img_500+" 500w, "+img_800+" 800w, "+sImage+" 2000w' style='width: 100%' alt=''>";
+    }
     
     var sContent = "<h1>"+sTitle+"</h1>"+
                    sGoback + 
-                   "<img src='articles/img/"+img_300+"' srcset='"+img_500+" 500w, "+img_800+" 800w, "+sImage+" 2000w' style='width: 100%'>"+
+                   img+
                    aTables.join("") + 
                    "<hr>"+
                    sGoback + 
@@ -209,7 +215,7 @@ function createTablePage(oSrc, sMod) {
     savePage(sPage, sPathToTablestOutput + "/"+sRandom+".html");
   }
   
-// just lopp to create article's pages with tables
+// just loop to create article's pages with tables
 function createTables() {
   for(var i=0; RandomItems.l[i]; i++) {
     for(var j=0; RandomItems.l[i].list[j]; j++) {

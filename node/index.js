@@ -127,7 +127,7 @@ function ensureDirectoryExistence(filePath) {
 }
 
 // create table as content to table article
-function createTable(sTable, sMod) {
+function createTable(sTable, sMod, sTitle) {
   var aTableRows = sTable.split(";");
   var nIndex = 1;
   if(sMod == "numeric"){
@@ -159,7 +159,8 @@ function createTable(sTable, sMod) {
       }
       return "<td>"+sCount + "</td><td> "  + el.trim() + "</td>";
     })
-    return "<table class='randomTable'>" + aTableRows.map(function(el){return "<tr>" + el + "</tr>"}).join("") + "</table>";
+    const sTableHeader = "<tr><th>d"+(nIndex-1)+"</th><th>"+ (sTitle?sTitle:"Результат")+"</th></tr>";
+    return "<table class='randomTable'>" + sTableHeader + aTableRows.map(function(el){return "<tr>" + el + "</tr>"}).join("") + "</table>";
   }
   else 
     return "<ul>" + aTableRows.map(function(el){return "<li>" + el + "</li>"}).join("") + "</ul>";
@@ -174,17 +175,26 @@ function createTablePage(oSrc, sMod) {
     var sRandom = oSrc.name;
     var aTables = [];
     var aSchemes = oSrc.schemes;
+    var aSrc = oSrc.src;
     
-    aSchemes.forEach(function(el){
-      for(var i=0; oSrc.src[i]; i++) {
-        if(oSrc.src[i].name == el) {
-          var sTable = oSrc.src[i].l;
+    // aSchemes.forEach(function(el){
+      // for(var i=0; oSrc.src[i]; i++) {
+        // if(oSrc.src[i].name == el) {
+          // var sTable = oSrc.src[i].l;
+          // var sTableTitle = oSrc.src[i].title?oSrc.src[i].title: "Результат";
           
-          aTables.push(createTable(sTable, "numericTable"));
+          // aTables.push(createTable(sTable, "numericTable", sTableTitle));
           
-          break;
-        }
-      }
+          // break;
+        // }
+      // }
+    // });
+    aSrc.forEach(function(el){
+
+      var sTable = el.l;
+      var sTableTitle = el.title? el.title : "Результат";
+      
+      aTables.push(createTable(sTable, "numericTable", sTableTitle));
     });
     
     var sLink = (sURL)? "<a href='"+sURL+"'>"+sSource+"</a>": sSource;

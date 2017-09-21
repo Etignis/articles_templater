@@ -148,6 +148,7 @@ function createTable(sTable, sMod, sTitle) {
     })
     return "<ul>" + aTableRows.map(function(el){return "<li>" + el + "</li>"}).join("") + "</ul>";
   } else if(sMod == "numericTable"){
+    let aD = [4,6,8,10,12,20,30,50,100];
     aTableRows = aTableRows.map(function(el){
       var aCount = el.match(/{{(\d+)}}/)
       var sCount = nIndex;
@@ -161,7 +162,8 @@ function createTable(sTable, sMod, sTitle) {
       }
       return "<td>"+sCount + "</td><td> "  + el.trim() + "</td>";
     })
-    const sTableHeader = "<tr><th>d"+(nIndex-1)+"</th><th>"+ (sTitle?sTitle:"Результат")+"</th></tr>";
+    const sD = (aD.indexOf(nIndex-1)>=0)? "d"+(nIndex-1): "№";
+    const sTableHeader = "<tr><th>"+sD+"</th><th>"+ (sTitle?sTitle:"Результат")+"</th></tr>";
     return "<table class='randomTable'>" + sTableHeader + aTableRows.map(function(el){return "<tr>" + el + "</tr>"}).join("") + "</table>";
   }
   else

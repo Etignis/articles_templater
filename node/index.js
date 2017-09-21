@@ -35,13 +35,14 @@ function getTablesList() {
   var aRows = [];
   for(var i=0; RandomItems.l[i]; i++) {
     for(var j=0; RandomItems.l[i].list[j]; j++) {
-      if(            
-        RandomItems.l[i].list[j].fArticle == true 
-      ){          
+      if(
+        RandomItems.l[i].list[j].fArticle == true
+      ){
         var sTitle = RandomItems.l[i].list[j].title;
         var sName = RandomItems.l[i].list[j].name;
-        
-        aRows.push("<li><a href='/articles/tables/"+sName+".html'>"+sTitle+"</a></li>")
+        var sDescription = RandomItems.l[i].list[j].description? "<br><span class='desc'>"+aSource[j].description+"</span>" : "";
+
+        aRows.push("<li><a href='/articles/tables/"+sName+".html'>"+sTitle+"</a>"+sDescription+"</li>")
       }
     }
   }
@@ -53,11 +54,12 @@ function getTablesList() {
 function getTextsList(aSource) {
   let aRows = [];
 
-  for(var j=0; aSource[j]; j++) {         
+  for(var j=0; aSource[j]; j++) {
     var sTitle = aSource[j].title;
     var sName = aSource[j].name;
-    //console.dir(aSource[j]);
-    aRows.push("<li><a href='articles/text/"+sName+"'>"+sTitle+"</a></li>");
+    var sDescription = aSource[j].description? "<br><span class='desc'>"+aSource[j].description+"</span>" : "";
+
+    aRows.push("<li><a href='articles/text/"+sName+"'>"+sTitle+"</a>"+sDescription+"</li>");
   }
 
   var sTitle = "<h2>Статьи</h2>";
@@ -67,17 +69,17 @@ function getTextsList(aSource) {
 /*
  *  Insert page content into page element (template)
  */
-function createPage(sTemplate, sContent, sTitle, oImage) {  
+function createPage(sTemplate, sContent, sTitle, oImage) {
   var oTemplate = cheerio.load(sTemplate, {decodeEntities: false});
   oTemplate("#content").html(sContent);
   if(sTitle){
     oTemplate("title").text(sTitle);
-    oTemplate("meta[property='og:title']").attr('content', sTitle);   
-    oTemplate("meta[property='og:description']").attr('content', sTitle);   
+    oTemplate("meta[property='og:title']").attr('content', sTitle);
+    oTemplate("meta[property='og:description']").attr('content', sTitle);
   }
   if(oImage){
     if(typeof oImage == "string") {
-      oTemplate("meta[property='og:image']").attr('content', sImage);       
+      oTemplate("meta[property='og:image']").attr('content', sImage);
     }
     if(Array.isArray(oImage)) {
       oImage.forEach(function(img, i){
@@ -85,7 +87,7 @@ function createPage(sTemplate, sContent, sTitle, oImage) {
       });
     }
   }
-  return oTemplate.html();   
+  return oTemplate.html();
 }
 
 // check & add OG images
@@ -97,7 +99,7 @@ function insertMetaImage($, sPath, nIndex){
   }
 }
 
-// save page file 
+// save page file
 function savePage(sContent, sPath, sMode) {
   ensureDirectoryExistence(sPath);
   if(sMode == 'sinc') {
@@ -162,7 +164,7 @@ function createTable(sTable, sMod, sTitle) {
     const sTableHeader = "<tr><th>d"+(nIndex-1)+"</th><th>"+ (sTitle?sTitle:"Результат")+"</th></tr>";
     return "<table class='randomTable'>" + sTableHeader + aTableRows.map(function(el){return "<tr>" + el + "</tr>"}).join("") + "</table>";
   }
-  else 
+  else
     return "<ul>" + aTableRows.map(function(el){return "<li>" + el + "</li>"}).join("") + "</ul>";
 }
 
@@ -171,36 +173,25 @@ function createTablePage(oSrc, sMod) {
     var sTitle = oSrc.title;
     var sImage = oSrc.img? "articles/img/"+oSrc.img : null;
     var sSource = oSrc.tooltip;
+    //var sDescription = oSrc.description;
     var sURL = oSrc.url;
     var sRandom = oSrc.name;
     var aTables = [];
     var aSchemes = oSrc.schemes;
     var aSrc = oSrc.src;
-    
-    // aSchemes.forEach(function(el){
-      // for(var i=0; oSrc.src[i]; i++) {
-        // if(oSrc.src[i].name == el) {
-          // var sTable = oSrc.src[i].l;
-          // var sTableTitle = oSrc.src[i].title?oSrc.src[i].title: "Результат";
-          
-          // aTables.push(createTable(sTable, "numericTable", sTableTitle));
-          
-          // break;
-        // }
-      // }
-    // });
+
     aSrc.forEach(function(el){
 
       var sTable = el.l;
       var sTableTitle = el.title? el.title : "Результат";
-      
+
       aTables.push(createTable(sTable, "numericTable", sTableTitle));
     });
-    
+
     var sLink = (sURL)? "<a href='"+sURL+"'>"+sSource+"</a>": sSource;
     var sRandomizer = "<a href='https://tentaculus.ru/random/#item="+sRandom+"'>Смотреть в рандомизаторе</a>";
-    var sGoback = "<p><a href='/articles'>Статьи</a><span style='color: #999'>"+sGoBackDelimiter+"</span><a href='/articles/tables'>Таблицы</a></p>";
-    
+    var sGoback = "<p><a href='/'><i class='fa fa-home' aria-hidden='true'></i></a><span style='color: #999'>"+sGoBackDelimiter+"</span><a href='/articles'>Статьи</a><span style='color: #999'>"+sGoBackDelimiter+"</span><a href='/articles/tables'>Таблицы</a><span style='color: #999'>"+sGoBackDelimiter+"</span>"+sTitle+"</p>";
+
     let img = "";
     let aImg = [];
     if(sImage){
@@ -208,32 +199,32 @@ function createTablePage(oSrc, sMod) {
       const img_500 = sImage.replace(".","__500.");
       const img_800 = sImage.replace(".","__800.");
       aImg = [sImage, img_800, img_500, img_300];
-      
+
       img =  "<img src='"+img_300+"' srcset='"+img_500+" 500w, "+img_800+" 800w, "+sImage+" 2000w' style='width: 100%' alt=''>";
     }
-    
+
     var sContent = "<h1>"+sTitle+"</h1>"+
-                   sGoback + 
+                   sGoback +
                    img+
-                   aTables.join("") + 
+                   aTables.join("") +
                    "<hr>"+
-                   sGoback + 
-                   "<p>Источник: "+sLink+"</p>" + 
+                   sGoback +
+                   "<p>Источник: "+sLink+"</p>" +
                    "<p>"+sRandomizer+"</p>";
-                   
+
     let sPage = createPage(sTemplate, sContent, sTitle, aImg);
     savePage(sPage, sPathToTablestOutput + "/"+sRandom+".html");
   }
-  
+
 // just loop to create article's pages with tables
 function createTables() {
   for(var i=0; RandomItems.l[i]; i++) {
     for(var j=0; RandomItems.l[i].list[j]; j++) {
-      if(            
-        RandomItems.l[i].list[j].fArticle == true 
-      ){         
-        
-        createTablePage(RandomItems.l[i].list[j]); 
+      if(
+        RandomItems.l[i].list[j].fArticle == true
+      ){
+
+        createTablePage(RandomItems.l[i].list[j]);
       }
     }
   }
@@ -258,21 +249,21 @@ function createTexts(sSourcePath, sOutputPath) {
       const $ = cheerio.load(fileContent.toString());
       const title = $("h1").text();
       const img = $("img")? $("img").attr('src') : null;
-      
+
       const img_300 = img.replace(".","__300.");
       const img_500 = img.replace(".","__500.");
       const img_800 = img.replace(".","__800.");
       const aImg = [img, img_800, img_500, img_300];
       if($("img").length > 0) {
         $("img").attr('src', img_300);
-        $("img").attr('srcset', img_500+" 500w, "+img_800+" 800w");        
+        $("img").attr('srcset', img_500+" 500w, "+img_800+" 800w");
       }
-      
-      const sGoback = "<p><a href='/articles'>Статьи</a><span style='color: #999'>"+sGoBackDelimiter+"</span><a href='/articles/text'>Тексты</a></p>";
+
+      const sGoback = "<p><a href='/'><i class='fa fa-home' aria-hidden='true'></i></a><span style='color: #999'>"+sGoBackDelimiter+"</span><a href='/articles'>Статьи</a><span style='color: #999'>"+sGoBackDelimiter+"</span><a href='/articles/text'>Тексты</a><span style='color: #999'>"+sGoBackDelimiter+"</span>"+title+"</p>";
       $("p").first().before(sGoback);
       $("p").last().after("<hr>"+sGoback);
       const content = $.html();
-      
+
       const page = createPage(sTemplate, content, title, aImg);
       savePage(page, sPathToTextOutput + "/" + fileName, "sinc");
     }
@@ -280,7 +271,7 @@ function createTexts(sSourcePath, sOutputPath) {
 }
 
 // create list of texts articles
-function createTextList(sSourcePath, sOutputPath) {  
+function createTextList(sSourcePath, sOutputPath) {
 
   let result = [];
   fs.readdirSync(sSourcePath).forEach(file => {
@@ -290,10 +281,12 @@ function createTextList(sSourcePath, sOutputPath) {
       const sBody = fileContent.toString();
       const $ = cheerio.load(sBody, {decodeEntities: false});
       const fileTitle = $('h1').text();
+      const description = $('.description').eq(0)? $('.description').eq(0).text() : null;
       //console.dir($('h1').text());
       result.push({
         title: fileTitle,
-        name: file
+        name: file,
+        description: description
       });
     }
   });
@@ -308,13 +301,13 @@ function createIndexPage() {
   savePage(sPage, "../index.html");
 }
 
-// table's list 
+// table's list
 createTableList();
 
 // create text articles from source
 createTexts(sPathToTextSource, sPathToTextOutput);
-  
-// text's list 
+
+// text's list
 createTextList(sPathToTextOutput, sPathToTextOutput);
 
 // articles main page

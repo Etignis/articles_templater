@@ -26,16 +26,6 @@ function resizeImages() {
         
         cp.exec(`magick "${sPath}" -resize ${nSize} "${sNewPath}"`)
 
-        /*/
-        gm(sPath)
-        .resize(nSize)
-        .noProfile()
-        .write(sNewPath, function (err) {
-          if (err) { 
-            console.dir(err);
-          }
-        });
-        /*/
       });   
       
     }

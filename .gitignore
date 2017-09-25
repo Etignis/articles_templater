@@ -2,9 +2,11 @@ image_resize/node_modules*
 node/node_modules*
 node/package-lock.json
 node/script.js
+node/config.js
 css/
 img/
 js/
 source/
 tables/
 text/
+articles/

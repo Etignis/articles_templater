@@ -10,20 +10,22 @@ const sPathToSrc = '../../random/js/items.js';
 const RandomItems = require(sPathToSrc);
 const sPathToTmp = '../../index.html';
 const sPathToTextSource = '../source';
-const sPathToTextOutput = '../text';
+const sPathToTextOutput = '../articles';
 const sPathToTablestOutput = '../tables';
 const htmlExt = '.html';
 const sPathToOutput = '../';
 const sTemplate = getTemplate();
 
-const sGoBackDelimiter = "→";
+const sGoBackDelimiter = "<span style='color: #999'>/</span>";
+const sGoToMain = "<a href='/'>🐙</a>"; //<i class='fa fa-home' aria-hidden='true'></i>
 
-let sGlobalTablesList, sGlobalTextsList;
+let sGlobalTablesList = "-", sGlobalTextsList;
 
 // get index.html from main site and clear content
 function getTemplate(){
   const fileContent = fs.readFileSync(sPathToTmp);
   const $ = cheerio.load(fileContent.toString(), {decodeEntities: false});
+  $("body").addClass("maxWidth880");
   $("#content").text("");
   $("#content").addClass('ephasizedPage');
   //console.dir($.html());
@@ -31,39 +33,45 @@ function getTemplate(){
 }
 
 // get list of articles with random tables
-function getTablesList() {
-  var aRows = [];
+function getTablesList(sImage) {
+  var aList = [];
+  if(sImage == undefined)
+     sImage="";
   for(var i=0; RandomItems.l[i]; i++) {
+    var sPartTitle = "<h2>"+RandomItems.l[i].title+"</h2>";
+    var aRows = [];
     for(var j=0; RandomItems.l[i].list[j]; j++) {
       if(
         RandomItems.l[i].list[j].fArticle == true
       ){
         var sTitle = RandomItems.l[i].list[j].title;
         var sName = RandomItems.l[i].list[j].name;
-        var sDescription = RandomItems.l[i].list[j].description? "<br><span class='desc'>"+aSource[j].description+"</span>" : "";
+        var sDescription = RandomItems.l[i].list[j].description? "<br><span class='desc'>"+RandomItems.l[i].list[j].description+"</span>" : "";
 
-        aRows.push("<li><a href='/articles/tables/"+sName+".html'>"+sTitle+"</a>"+sDescription+"</li>")
+        aRows.push("<li><a href='/archive/tables/"+sName+".html'>"+sTitle+"</a>"+sDescription+"</li>")
       }
     }
+    aList.push(sPartTitle+"<ul>"+aRows.join("")+"</ul>")
   }
-  var sTitle = "<h2>Таблицы</h2>";
-  return sTitle+"<ul>"+aRows.join("")+"</ul>";
+  var sSectionTitle = "<h1>Таблицы</h1>";
+  return sSectionTitle+sImage+aList.join("");
 }
 
 // get list of articles with text
-function getTextsList(aSource) {
+function getTextsList(aSource, sImage) {
   let aRows = [];
-
+  if(sImage == undefined)
+     sImage="";
   for(var j=0; aSource[j]; j++) {
     var sTitle = aSource[j].title;
     var sName = aSource[j].name;
     var sDescription = aSource[j].description? "<br><span class='desc'>"+aSource[j].description+"</span>" : "";
 
-    aRows.push("<li><a href='articles/text/"+sName+"'>"+sTitle+"</a>"+sDescription+"</li>");
+    aRows.push("<li><a href='archive/articles/"+sName+"'>"+sTitle+"</a>"+sDescription+"</li>");
   }
 
-  var sTitle = "<h2>Статьи</h2>";
-  return sTitle+"<ul>"+aRows.join("")+"</ul>";
+  var sTitle = "<h1>Статьи</h1>";
+  return sTitle+sImage+"<ul>"+aRows.join("")+"</ul>";
 }
 
 /*
@@ -173,9 +181,10 @@ function createTable(sTable, sMod, sTitle) {
 // add title, image etc to table to create content for page
 function createTablePage(oSrc, sMod) {
     var sTitle = oSrc.title;
-    var sImage = oSrc.img? "articles/img/"+oSrc.img : null;
+    var sImage = oSrc.img? "archive/img/"+oSrc.img : "archive/img/archive_tables.jpg";
     var sSource = oSrc.tooltip;
-    //var sDescription = oSrc.description;
+    var sDescription = oSrc.description? "<p>"+oSrc.description+"</p>" : "";
+    var sDescriptionMore = oSrc.descriptionMore? "<p>"+oSrc.descriptionMore+"</p>" : "";
     var sURL = oSrc.url;
     var sRandom = oSrc.name;
     var aTables = [];
@@ -192,7 +201,7 @@ function createTablePage(oSrc, sMod) {
 
     var sLink = (sURL)? "<a href='"+sURL+"'>"+sSource+"</a>": sSource;
     var sRandomizer = "<a href='https://tentaculus.ru/random/#item="+sRandom+"'>Смотреть в рандомизаторе</a>";
-    var sGoback = "<p><a href='/'><i class='fa fa-home' aria-hidden='true'></i></a><span style='color: #999'>"+sGoBackDelimiter+"</span><a href='/articles'>Статьи</a><span style='color: #999'>"+sGoBackDelimiter+"</span><a href='/articles/tables'>Таблицы</a><span style='color: #999'>"+sGoBackDelimiter+"</span>"+sTitle+"</p>";
+    var sGoback = "<p class='noRedString breadcrumps'>" + sGoToMain +sGoBackDelimiter+"<a href='/archive'>Статьи</a>"+sGoBackDelimiter+"<a href='/archive/tables'>Таблицы</a>"+sGoBackDelimiter + sTitle+"</p>";
 
     let img = "";
     let aImg = [];
@@ -208,11 +217,13 @@ function createTablePage(oSrc, sMod) {
     var sContent = "<h1>"+sTitle+"</h1>"+
                    sGoback +
                    img+
+                   sDescription+
+                   sDescriptionMore+
                    aTables.join("") +
                    "<hr>"+
                    sGoback +
-                   "<p>Источник: "+sLink+"</p>" +
-                   "<p>"+sRandomizer+"</p>";
+                   "<p class='noRedString'>Источник: "+sLink+"</p>" +
+                   "<p class='noRedString'>"+sRandomizer+"</p>";
 
     let sPage = createPage(sTemplate, sContent, sTitle, aImg);
     savePage(sPage, sPathToTablestOutput + "/"+sRandom+".html");
@@ -234,9 +245,10 @@ function createTables() {
 
 // create page with list of random tables articles
 function createTableList() {
-  createTables();
-  sGlobalTablesList = getTablesList();
-  let sPage = createPage(sTemplate, sGlobalTablesList, "Таблицы");
+  createTables(); //img =  "<img src='"+img_300+"' srcset='"+img_500+" 500w, "+img_800+" 800w, "+sImage+" 2000w' style='width: 100%' alt=''>";
+  const sImage = "<img src='archive/img/archive_tables__300.jpg' srcset='archive/img/archive_tables__500.jpg 500w, archive/img/archive_tables__800.jpg 800w, archive/img/archive_tables.jpg 2000w' style='width: 100%' alt=''>"; 
+  sGlobalTablesList = getTablesList(sImage);
+  const sPage = createPage(sTemplate, sGlobalTablesList, "Таблицы");
   savePage(sPage, sPathToTablestOutput + "/index.html");
 }
 
@@ -250,7 +262,7 @@ function createTexts(sSourcePath, sOutputPath) {
 
       const $ = cheerio.load(fileContent.toString());
       const title = $("h1").text();
-      const img = $("img")? $("img").attr('src') : null;
+      const img = $("img")? $("img").attr('src') : "archive/img/archive_articles.jpg";
 
       const img_300 = img.replace(".","__300.");
       const img_500 = img.replace(".","__500.");
@@ -261,7 +273,7 @@ function createTexts(sSourcePath, sOutputPath) {
         $("img").attr('srcset', img_500+" 500w, "+img_800+" 800w");
       }
 
-      const sGoback = "<p><a href='/'><i class='fa fa-home' aria-hidden='true'></i></a><span style='color: #999'>"+sGoBackDelimiter+"</span><a href='/articles'>Статьи</a><span style='color: #999'>"+sGoBackDelimiter+"</span><a href='/articles/text'>Тексты</a><span style='color: #999'>"+sGoBackDelimiter+"</span>"+title+"</p>";
+      const sGoback = "<p class='noRedString breadcrumps'>"+sGoToMain+sGoBackDelimiter+"<a href='/archive'>Статьи</a>"+sGoBackDelimiter+"<a href='/archive/articles'>Тексты</a>"+sGoBackDelimiter + title+"</p>";
       $("p").first().before(sGoback);
       $("p").last().after("<hr>"+sGoback);
       const content = $.html();
@@ -292,8 +304,9 @@ function createTextList(sSourcePath, sOutputPath) {
       });
     }
   });
-  sGlobalTextsList = getTextsList(result);
-  const sPage = createPage(sTemplate, sGlobalTextsList, "Тексты");
+  const sImage = "<img src='archive/img/archive_articles__300.jpg' srcset='archive/img/archive_articles__500.jpg 500w, archive/img/archive_articles__800.jpg 800w, archive/img/archive_articles.jpg 2000w' style='width: 100%' alt=''>";
+  sGlobalTextsList = getTextsList(result, sImage);
+  const sPage = createPage(sTemplate, sGlobalTextsList, "Статьи");
   savePage(sPage, sPathToTextOutput + "/index.html");
 }
 

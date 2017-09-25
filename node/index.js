@@ -21,6 +21,14 @@ const sTemplate = getTemplate();
 const sGoBackDelimiter = "<span style='color: #999'>/</span>";
 const sGoToMain = "<a href='/'>🐙</a>"; //<i class='fa fa-home' aria-hidden='true'></i>
 
+const sArchiveTitle = "Архив";
+const sTablesTitle = "Таблицы";
+const sArticlesTitle = "Статьи";
+const sOthersTitle = "Разное";
+const sResultTableTitle = "Результат";
+const sRandomizator = "Смотреть в рандомизаторе";
+const sSourceTitle = "Источник";
+
 let sGlobalTablesList, sGlobalTextsList, sGlobalOthersList;
 
 // get index.html from main site and clear content
@@ -55,7 +63,7 @@ function getTablesList(sImage) {
     }
     aList.push(sPartTitle+"<ul>"+aRows.join("")+"</ul>")
   }
-  var sSectionTitle = "<h1>Таблицы</h1>";
+  var sSectionTitle = "<h1>"+sTablesTitle+"</h1>";
   return sSectionTitle+sImage+aList.join("");
 }
 
@@ -72,7 +80,7 @@ function getTextsList(aSource, sImage) {
     aRows.push("<li><a href='archive/articles/"+sName+"'>"+sTitle+"</a>"+sDescription+"</li>");
   }
 
-  var sTitle = "<h1>Стати</h1>";
+  var sTitle = "<h1>"+sArticlesTitle+"</h1>";
   return sTitle+sImage+"<ul>"+aRows.join("")+"</ul>";
 }
 // get list of other articles 
@@ -88,15 +96,21 @@ function getOthersList(aSource, sImage) {
     aRows.push("<li><a href='archive/other/"+sName+"'>"+sTitle+"</a>"+sDescription+"</li>");
   }
 
-  var sTitle = "<h1>Разное</h1>";
+  var sTitle = "<h1>"+sOthersTitle+"</h1>";
   return sTitle+sImage+"<ul>"+aRows.join("")+"</ul>";
 }
 
 /*
  *  Insert page content into page element (template)
  */
-function createPage(sTemplate, sContent, sTitle, oImage) {
+function createPage(sTemplate, sContent, sTitle, oImage, isComments, isLikes) {
   var oTemplate = cheerio.load(sTemplate, {decodeEntities: false});
+  if(isLikes) {
+    sContent += '<p class="noRedString"><div id="vk_like"></div></p><script type="text/javascript">VK.Widgets.Like("vk_like", {type: "full"});</script>';
+  }
+  if(isComments) {
+    sContent += '<div id="vk_comments"></div></p><script type="text/javascript">VK.Widgets.Comments("vk_comments", {limit: 10, attach: "*"});</script>';
+  }
   oTemplate("#content").html(sContent);
   if(sTitle){
     oTemplate("title").text(sTitle);
@@ -188,8 +202,8 @@ function createTable(sTable, sMod, sTitle) {
       }
       return "<td>"+sCount + "</td><td> "  + el.trim() + "</td>";
     })
-    const sD = (aD.indexOf(nIndex-1)>=0)? "d"+(nIndex-1): "в„–";
-    const sTableHeader = "<tr><th>"+sD+"</th><th>"+ (sTitle?sTitle:"Р РµР·СѓР»СЊС‚Р°С‚")+"</th></tr>";
+    const sD = (aD.indexOf(nIndex-1)>=0)? "d"+(nIndex-1): "№";
+    const sTableHeader = "<tr><th>"+sD+"</th><th>"+ (sTitle? sTitle : sResultTableTitle)+"</th></tr>";
     return "<table class='randomTable'>" + sTableHeader + aTableRows.map(function(el){return "<tr>" + el + "</tr>"}).join("") + "</table>";
   }
   else
@@ -218,8 +232,8 @@ function createTablePage(oSrc, sMod) {
     });
 
     var sLink = (sURL)? "<a href='"+sURL+"'>"+sSource+"</a>": sSource;
-    var sRandomizer = "<a href='https://tentaculus.ru/random/#item="+sRandom+"'>РЎРјРѕС‚СЂРµС‚СЊ РІ СЂР°РЅРґРѕРјРёР·Р°С‚РѕСЂРµ</a>";
-    var sGoback = "<p class='noRedString breadcrumps'>" + sGoToMain +sGoBackDelimiter+"<a href='/archive'>РЎС‚Р°С‚СЊРё</a>"+sGoBackDelimiter+"<a href='/archive/tables'>РўР°Р±Р»РёС†С‹</a>"+sGoBackDelimiter + sTitle+"</p>";
+    var sRandomizer = "<a href='https://tentaculus.ru/random/#item="+sRandom+"'>"+sRandomizator+"</a>";
+    var sGoback = "<p class='noRedString breadcrumps'>" + sGoToMain +sGoBackDelimiter+"<a href='/archive'>"+sArchiveTitle+"</a>"+sGoBackDelimiter+"<a href='/archive/tables'>"+sTablesTitle+"</a>"+sGoBackDelimiter + sTitle+"</p>";
 
     let img = "";
     let aImg = [];
@@ -240,10 +254,10 @@ function createTablePage(oSrc, sMod) {
                    aTables.join("") +
                    "<hr>"+
                    sGoback +
-                   "<p class='noRedString'>РСЃС‚РѕС‡РЅРёРє: "+sLink+"</p>" +
+                   "<p class='noRedString'>"+sSourceTitle+": "+sLink+"</p>" +
                    "<p class='noRedString'>"+sRandomizer+"</p>";
 
-    let sPage = createPage(sTemplate, sContent, sTitle, aImg);
+    let sPage = createPage(sTemplate, sContent, sTitle, aImg, true, true);
     savePage(sPage, sPathToTablestOutput + "/"+sRandom+".html");
   }
 
@@ -266,7 +280,7 @@ function createTableList() {
   createTables(); //img =  "<img src='"+img_300+"' srcset='"+img_500+" 500w, "+img_800+" 800w, "+sImage+" 2000w' style='width: 100%' alt=''>";
   const sImage = "<img src='archive/img/archive_tables__300.jpg' srcset='archive/img/archive_tables__500.jpg 500w, archive/img/archive_tables__800.jpg 800w, archive/img/archive_tables.jpg 2000w' style='width: 100%' alt=''>"; 
   sGlobalTablesList = getTablesList(sImage);
-  const sPage = createPage(sTemplate, sGlobalTablesList, "РўР°Р±Р»РёС†С‹");
+  const sPage = createPage(sTemplate, sGlobalTablesList, sTablesTitle);
   savePage(sPage, sPathToTablestOutput + "/index.html");
 }
 
@@ -291,12 +305,12 @@ function createTexts(sSourcePath, sOutputPath) {
         $("img").attr('srcset', img_500+" 500w, "+img_800+" 800w");
       }
 
-      const sGoback = "<p class='noRedString breadcrumps'>"+sGoToMain+sGoBackDelimiter+"<a href='/archive'>Архив</a>"+sGoBackDelimiter+"<a href='/archive/articles'>Статьи</a>"+sGoBackDelimiter + title+"</p>";
+      const sGoback = "<p class='noRedString breadcrumps'>"+sGoToMain+sGoBackDelimiter+"<a href='/archive'>"+sArchiveTitle+"</a>"+sGoBackDelimiter+"<a href='/archive/articles'>"+sArticlesTitle+"</a>"+sGoBackDelimiter + title+"</p>";
       $("p").first().before(sGoback);
       $("p").last().after("<hr>"+sGoback);
       const content = $.html();
 
-      const page = createPage(sTemplate, content, title, aImg);
+      const page = createPage(sTemplate, content, title, aImg, true, true);
       savePage(page, sOutputPath + "/" + fileName, "sinc");
     }
   });
@@ -324,7 +338,7 @@ function createTextList(sSourcePath, sOutputPath) {
   });
   const sImage = "<img src='archive/img/archive_articles__300.jpg' srcset='archive/img/archive_articles__500.jpg 500w, archive/img/archive_articles__800.jpg 800w, archive/img/archive_articles.jpg 2000w' style='width: 100%' alt=''>";
   sGlobalTextsList = getTextsList(result, sImage);
-  const sPage = createPage(sTemplate, sGlobalTextsList, "Статьи");
+  const sPage = createPage(sTemplate, sGlobalTextsList, sArticlesTitle);
   savePage(sPage, sPathToTextOutput + "/index.html");
 }
 
@@ -351,13 +365,13 @@ function createOthers(sSourcePath, sOutputPath) {
       }
       //console.dir(aImg);
 
-      const sGoback = "<p class='noRedString breadcrumps'>"+sGoToMain+sGoBackDelimiter+"<a href='/archive'>Архив</a>"+sGoBackDelimiter+"<a href='/archive/other'>Разное</a>"+sGoBackDelimiter + title+"</p>";
+      const sGoback = "<p class='noRedString breadcrumps'>"+sGoToMain+sGoBackDelimiter+"<a href='/archive'>"+sArchiveTitle+"</a>"+sGoBackDelimiter+"<a href='/archive/other'>"+sOthersTitle+"</a>"+sGoBackDelimiter + title+"</p>";
       $("h1").first().after(sGoback);
       $("p").last().after("<hr>"+sGoback);
       const content = $.html();
       //console.dir(content);
 
-      const page = createPage(sTemplate, content, title, aImg);
+      const page = createPage(sTemplate, content, title, aImg, true, true);
       savePage(page, sOutputPath + "/" + fileName, "sinc");
     }
   });
@@ -385,7 +399,7 @@ function createOtherList(sSourcePath, sOutputPath) {
   });
   const sImage = "<img src='archive/img/archive_other__300.jpg' srcset='archive/img/archive_other__500.jpg 500w, archive/img/archive_other__800.jpg 800w, archive/img/archive_other.jpg 2000w' style='width: 100%' alt=''>";
   sGlobalOthersList = getOthersList(result, sImage);
-  const sPage = createPage(sTemplate, sGlobalOthersList, "Разное");
+  const sPage = createPage(sTemplate, sGlobalOthersList, sOthersTitle);
   savePage(sPage, sPathToTextOutput + "/index.html");
 }
 

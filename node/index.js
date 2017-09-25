@@ -11,6 +11,8 @@ const RandomItems = require(sPathToSrc);
 const sPathToTmp = '../../index.html';
 const sPathToTextSource = '../source';
 const sPathToTextOutput = '../articles';
+const sPathToOtherSource = '../source/other';
+const sPathToOtherOutput = '../other';
 const sPathToTablestOutput = '../tables';
 const htmlExt = '.html';
 const sPathToOutput = '../';
@@ -19,7 +21,7 @@ const sTemplate = getTemplate();
 const sGoBackDelimiter = "<span style='color: #999'>/</span>";
 const sGoToMain = "<a href='/'>🐙</a>"; //<i class='fa fa-home' aria-hidden='true'></i>
 
-let sGlobalTablesList = "-", sGlobalTextsList;
+let sGlobalTablesList, sGlobalTextsList, sGlobalOthersList;
 
 // get index.html from main site and clear content
 function getTemplate(){
@@ -70,7 +72,23 @@ function getTextsList(aSource, sImage) {
     aRows.push("<li><a href='archive/articles/"+sName+"'>"+sTitle+"</a>"+sDescription+"</li>");
   }
 
-  var sTitle = "<h1>Статьи</h1>";
+  var sTitle = "<h1>Стати</h1>";
+  return sTitle+sImage+"<ul>"+aRows.join("")+"</ul>";
+}
+// get list of other articles 
+function getOthersList(aSource, sImage) {
+  let aRows = [];
+  if(sImage == undefined)
+     sImage="";
+  for(var j=0; aSource[j]; j++) {
+    var sTitle = aSource[j].title;
+    var sName = aSource[j].name;
+    var sDescription = aSource[j].description? "<br><span class='desc'>"+aSource[j].description+"</span>" : "";
+
+    aRows.push("<li><a href='archive/other/"+sName+"'>"+sTitle+"</a>"+sDescription+"</li>");
+  }
+
+  var sTitle = "<h1>Разное</h1>";
   return sTitle+sImage+"<ul>"+aRows.join("")+"</ul>";
 }
 
@@ -170,8 +188,8 @@ function createTable(sTable, sMod, sTitle) {
       }
       return "<td>"+sCount + "</td><td> "  + el.trim() + "</td>";
     })
-    const sD = (aD.indexOf(nIndex-1)>=0)? "d"+(nIndex-1): "№";
-    const sTableHeader = "<tr><th>"+sD+"</th><th>"+ (sTitle?sTitle:"Результат")+"</th></tr>";
+    const sD = (aD.indexOf(nIndex-1)>=0)? "d"+(nIndex-1): "в„–";
+    const sTableHeader = "<tr><th>"+sD+"</th><th>"+ (sTitle?sTitle:"Р РµР·СѓР»СЊС‚Р°С‚")+"</th></tr>";
     return "<table class='randomTable'>" + sTableHeader + aTableRows.map(function(el){return "<tr>" + el + "</tr>"}).join("") + "</table>";
   }
   else
@@ -194,14 +212,14 @@ function createTablePage(oSrc, sMod) {
     aSrc.forEach(function(el){
 
       var sTable = el.l;
-      var sTableTitle = el.title? el.title : "Результат";
+      var sTableTitle = el.title? el.title : "Р РµР·СѓР»СЊС‚Р°С‚";
 
       aTables.push(createTable(sTable, "numericTable", sTableTitle));
     });
 
     var sLink = (sURL)? "<a href='"+sURL+"'>"+sSource+"</a>": sSource;
-    var sRandomizer = "<a href='https://tentaculus.ru/random/#item="+sRandom+"'>Смотреть в рандомизаторе</a>";
-    var sGoback = "<p class='noRedString breadcrumps'>" + sGoToMain +sGoBackDelimiter+"<a href='/archive'>Статьи</a>"+sGoBackDelimiter+"<a href='/archive/tables'>Таблицы</a>"+sGoBackDelimiter + sTitle+"</p>";
+    var sRandomizer = "<a href='https://tentaculus.ru/random/#item="+sRandom+"'>РЎРјРѕС‚СЂРµС‚СЊ РІ СЂР°РЅРґРѕРјРёР·Р°С‚РѕСЂРµ</a>";
+    var sGoback = "<p class='noRedString breadcrumps'>" + sGoToMain +sGoBackDelimiter+"<a href='/archive'>РЎС‚Р°С‚СЊРё</a>"+sGoBackDelimiter+"<a href='/archive/tables'>РўР°Р±Р»РёС†С‹</a>"+sGoBackDelimiter + sTitle+"</p>";
 
     let img = "";
     let aImg = [];
@@ -222,7 +240,7 @@ function createTablePage(oSrc, sMod) {
                    aTables.join("") +
                    "<hr>"+
                    sGoback +
-                   "<p class='noRedString'>Источник: "+sLink+"</p>" +
+                   "<p class='noRedString'>РСЃС‚РѕС‡РЅРёРє: "+sLink+"</p>" +
                    "<p class='noRedString'>"+sRandomizer+"</p>";
 
     let sPage = createPage(sTemplate, sContent, sTitle, aImg);
@@ -248,7 +266,7 @@ function createTableList() {
   createTables(); //img =  "<img src='"+img_300+"' srcset='"+img_500+" 500w, "+img_800+" 800w, "+sImage+" 2000w' style='width: 100%' alt=''>";
   const sImage = "<img src='archive/img/archive_tables__300.jpg' srcset='archive/img/archive_tables__500.jpg 500w, archive/img/archive_tables__800.jpg 800w, archive/img/archive_tables.jpg 2000w' style='width: 100%' alt=''>"; 
   sGlobalTablesList = getTablesList(sImage);
-  const sPage = createPage(sTemplate, sGlobalTablesList, "Таблицы");
+  const sPage = createPage(sTemplate, sGlobalTablesList, "РўР°Р±Р»РёС†С‹");
   savePage(sPage, sPathToTablestOutput + "/index.html");
 }
 
@@ -273,13 +291,13 @@ function createTexts(sSourcePath, sOutputPath) {
         $("img").attr('srcset', img_500+" 500w, "+img_800+" 800w");
       }
 
-      const sGoback = "<p class='noRedString breadcrumps'>"+sGoToMain+sGoBackDelimiter+"<a href='/archive'>Статьи</a>"+sGoBackDelimiter+"<a href='/archive/articles'>Тексты</a>"+sGoBackDelimiter + title+"</p>";
+      const sGoback = "<p class='noRedString breadcrumps'>"+sGoToMain+sGoBackDelimiter+"<a href='/archive'>Архив</a>"+sGoBackDelimiter+"<a href='/archive/articles'>Статьи</a>"+sGoBackDelimiter + title+"</p>";
       $("p").first().before(sGoback);
       $("p").last().after("<hr>"+sGoback);
       const content = $.html();
 
       const page = createPage(sTemplate, content, title, aImg);
-      savePage(page, sPathToTextOutput + "/" + fileName, "sinc");
+      savePage(page, sOutputPath + "/" + fileName, "sinc");
     }
   });
 }
@@ -310,9 +328,65 @@ function createTextList(sSourcePath, sOutputPath) {
   savePage(sPage, sPathToTextOutput + "/index.html");
 }
 
+// loop to creat the page to each ther article
+function createOthers(sSourcePath, sOutputPath) {
+  console.log("Render other's articles");
+  fs.readdirSync(sSourcePath).forEach(file => {
+    if (path.extname(file) === htmlExt) {
+      const fileName = path.basename(file);
+      const fileContent = fs.readFileSync(path.join(sSourcePath, file));
+      const $ = cheerio.load(fileContent.toString());
+      const title = $("h1").text();
+      //console.log(title);
+      const img = $("img")? $("img").attr('src') : "archive/img/archive_other.jpg";
+
+      let aImg = [img];
+      for(var i=1; i<$("img").length; i++) {
+        aImg.push($("img").eq(i).attr('src'));
+      }
+      console.dir(aImg);
+
+      const sGoback = "<p class='noRedString breadcrumps'>"+sGoToMain+sGoBackDelimiter+"<a href='/archive'>Архив</a>"+sGoBackDelimiter+"<a href='/archive/other'>Разное</a>"+sGoBackDelimiter + title+"</p>";
+      $("h1").first().after(sGoback);
+      $("p").last().after("<hr>"+sGoback);
+      const content = $.html();
+      //console.dir(content);
+
+      const page = createPage(sTemplate, content, title, aImg);
+      savePage(page, sOutputPath + "/" + fileName, "sinc");
+    }
+  });
+}
+
+// create list of texts articles
+function createOtherList(sSourcePath, sOutputPath) {
+
+  let result = [];
+  fs.readdirSync(sSourcePath).forEach(file => {
+    if (path.extname(file) === htmlExt && file != 'index.html') {
+      const fileName = path.basename(file);
+      const fileContent = fs.readFileSync(path.join(sSourcePath, file));
+      const sBody = fileContent.toString();
+      const $ = cheerio.load(sBody, {decodeEntities: false});
+      const fileTitle = $('h1').text();
+      const description = $('.description').eq(0)? $('.description').eq(0).text() : null;
+      //console.dir($('h1').text());
+      result.push({
+        title: fileTitle,
+        name: file,
+        description: description
+      });
+    }
+  });
+  const sImage = "<img src='archive/img/archive_other__300.jpg' srcset='archive/img/archive_other__500.jpg 500w, archive/img/archive_other__800.jpg 800w, archive/img/archive_other.jpg 2000w' style='width: 100%' alt=''>";
+  sGlobalOthersList = getOthersList(result, sImage);
+  const sPage = createPage(sTemplate, sGlobalOthersList, "Разное");
+  savePage(sPage, sPathToTextOutput + "/index.html");
+}
+
 // creata main page for article part of site with list of all articles
 function createIndexPage() {
-  const sPage = createPage(sTemplate, sGlobalTablesList+sGlobalTextsList);
+  const sPage = createPage(sTemplate, sGlobalTablesList + sGlobalTextsList + sGlobalOthersList);
   savePage(sPage, "../index.html");
 }
 
@@ -321,9 +395,13 @@ createTableList();
 
 // create text articles from source
 createTexts(sPathToTextSource, sPathToTextOutput);
-
 // text's list
 createTextList(sPathToTextOutput, sPathToTextOutput);
+
+// create other articles from source
+createOthers(sPathToOtherSource, sPathToOtherOutput);
+// other's list
+createOtherList(sPathToOtherOutput, sPathToOtherOutput);
 
 // articles main page
 createIndexPage();

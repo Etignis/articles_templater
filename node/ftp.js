@@ -1,5 +1,5 @@
 const ftpSync = require('ftpsync');
-const options = require("config.js");
+const options = require("./config.js");
 
 ftpSync.settings = options;
 ftpSync.run(function(err, result) {

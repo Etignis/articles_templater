@@ -279,8 +279,14 @@ function createTables() {
 function createTableList() {
   createTables(); //img =  "<img src='"+img_300+"' srcset='"+img_500+" 500w, "+img_800+" 800w, "+sImage+" 2000w' style='width: 100%' alt=''>";
   const sImage = "<img src='archive/img/archive_tables__300.jpg' srcset='archive/img/archive_tables__500.jpg 500w, archive/img/archive_tables__800.jpg 800w, archive/img/archive_tables.jpg 2000w' style='width: 100%' alt=''>"; 
+  const aImg = [
+    "archive/img/archive_tables.jpg",
+    "archive/img/archive_tables__800.jpg",
+    "archive/img/archive_tables__500.jpg",
+    "archive/img/archive_tables__300.jpg",
+  ];
   sGlobalTablesList = getTablesList(sImage);
-  const sPage = createPage(sTemplate, sGlobalTablesList, sTablesTitle);
+  const sPage = createPage(sTemplate, sGlobalTablesList, sTablesTitle, aImg);
   savePage(sPage, sPathToTablestOutput + "/index.html");
 }
 
@@ -337,8 +343,14 @@ function createTextList(sSourcePath, sOutputPath) {
     }
   });
   const sImage = "<img src='archive/img/archive_articles__300.jpg' srcset='archive/img/archive_articles__500.jpg 500w, archive/img/archive_articles__800.jpg 800w, archive/img/archive_articles.jpg 2000w' style='width: 100%' alt=''>";
+  const aImg = [
+    "archive/img/archive_articles.jpg",
+    "archive/img/archive_articles__800.jpg",
+    "archive/img/archive_articles__500.jpg",
+    "archive/img/archive_articles__300.jpg",
+  ];
   sGlobalTextsList = getTextsList(result, sImage);
-  const sPage = createPage(sTemplate, sGlobalTextsList, sArticlesTitle);
+  const sPage = createPage(sTemplate, sGlobalTextsList, sArticlesTitle, aImg);
   savePage(sPage, sPathToTextOutput + "/index.html");
 }
 
@@ -398,9 +410,15 @@ function createOtherList(sSourcePath, sOutputPath) {
     }
   });
   const sImage = "<img src='archive/img/archive_other__300.jpg' srcset='archive/img/archive_other__500.jpg 500w, archive/img/archive_other__800.jpg 800w, archive/img/archive_other.jpg 2000w' style='width: 100%' alt=''>";
+  const aImg = [
+    "archive/img/archive_other.jpg",
+    "archive/img/archive_other__800.jpg",
+    "archive/img/archive_other__500.jpg",
+    "archive/img/archive_other__300.jpg",
+  ];
   sGlobalOthersList = getOthersList(result, sImage);
-  const sPage = createPage(sTemplate, sGlobalOthersList, sOthersTitle);
-  savePage(sPage, sPathToTextOutput + "/index.html");
+  const sPage = createPage(sTemplate, sGlobalOthersList, sOthersTitle, aImg);
+  savePage(sPage, sOutputPath + "/index.html");
 }
 
 // creata main page for article part of site with list of all articles

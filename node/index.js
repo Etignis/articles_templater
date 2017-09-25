@@ -339,12 +339,17 @@ function createOthers(sSourcePath, sOutputPath) {
       const title = $("h1").text();
       //console.log(title);
       const img = $("img")? $("img").attr('src') : "archive/img/archive_other.jpg";
-
-      let aImg = [img];
-      for(var i=1; i<$("img").length; i++) {
+      
+      let aImg = [];
+      for(var i=0; i<$("img").length; i++) {
         aImg.push($("img").eq(i).attr('src'));
+        
+        let sImgURL = $("img").eq(i).attr("src");
+        let sImgObj = $("img").eq(i);
+        //console.dir(sImgObj);
+        $("img").eq(i).replaceWith("<a href='"+sImgURL+"'>"+sImgObj+"</a>");
       }
-      console.dir(aImg);
+      //console.dir(aImg);
 
       const sGoback = "<p class='noRedString breadcrumps'>"+sGoToMain+sGoBackDelimiter+"<a href='/archive'>Архив</a>"+sGoBackDelimiter+"<a href='/archive/other'>Разное</a>"+sGoBackDelimiter + title+"</p>";
       $("h1").first().after(sGoback);

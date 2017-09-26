@@ -42,6 +42,14 @@ function getTemplate(){
   return $.html();
 }
 
+function getTaglist(sTagline) {
+  const aTags = sTagLine.split(/\s*[;,]\s*/);
+  const sTags = aTags.map(function(tag){
+    return "<a href='/archive?q="+tag+"' class='tag'>"+tag+"</a>";
+  }).join(" ");
+  return "<br><span class='taglist'>#" + sTags + "</span>";
+}
+
 // get list of articles with random tables
 function getTablesList(sImage) {
   var aList = [];
@@ -56,9 +64,12 @@ function getTablesList(sImage) {
       ){
         var sTitle = RandomItems.l[i].list[j].title;
         var sName = RandomItems.l[i].list[j].name;
-        var sDescription = RandomItems.l[i].list[j].description? "<br><span class='desc'>"+RandomItems.l[i].list[j].description+"</span>" : "";
 
-        aRows.push("<li><a href='/archive/tables/"+sName+".html'>"+sTitle+"</a>"+sDescription+"</li>")
+        var sDescription = RandomItems.l[i].list[j].description? "<br><span class='desc'>"+RandomItems.l[i].list[j].description+"</span>" : "";
+        var sTagList = RandomItems.l[i].list[j].tags? getTaglist(RandomItems.l[i].list[j].tags) : "";
+
+        aRows.push("<li><a href='/archive/tables/"+sName+".html'>"+sTitle+"</a>"+sDescription+sTagList+"</li>")
+
       }
     }
     aList.push(sPartTitle+"<ul>"+aRows.join("")+"</ul>")
@@ -76,14 +87,16 @@ function getTextsList(aSource, sImage) {
     var sTitle = aSource[j].title;
     var sName = aSource[j].name;
     var sDescription = aSource[j].description? "<br><span class='desc'>"+aSource[j].description+"</span>" : "";
+    var sTags =aSource[j].taglist? getTaglist(aSource[j].taglist) : "";
 
-    aRows.push("<li><a href='archive/articles/"+sName+"'>"+sTitle+"</a>"+sDescription+"</li>");
+
+    aRows.push("<li><a href='archive/articles/"+sName+"'>"+sTitle+"</a>"+sDescription+sTags+"</li>");
   }
 
   var sTitle = "<h1>"+sArticlesTitle+"</h1>";
   return sTitle+sImage+"<ul>"+aRows.join("")+"</ul>";
 }
-// get list of other articles 
+// get list of other articles
 function getOthersList(aSource, sImage) {
   let aRows = [];
   if(sImage == undefined)
@@ -92,8 +105,10 @@ function getOthersList(aSource, sImage) {
     var sTitle = aSource[j].title;
     var sName = aSource[j].name;
     var sDescription = aSource[j].description? "<br><span class='desc'>"+aSource[j].description+"</span>" : "";
+    var sTags =aSource[j].taglist? getTaglist(aSource[j].taglist) : "";
 
-    aRows.push("<li><a href='archive/other/"+sName+"'>"+sTitle+"</a>"+sDescription+"</li>");
+    aRows.push("<li><a href='archive/other/"+sName+"'>"+sTitle+"</a>"+sDescription+sTags+"</li>");
+
   }
 
   var sTitle = "<h1>"+sOthersTitle+"</h1>";
@@ -103,6 +118,7 @@ function getOthersList(aSource, sImage) {
 /*
  *  Insert page content into page element (template)
  */
+
 function createPage(sTemplate, sContent, sTitle, oImage, isComments, isLikes) {
   var oTemplate = cheerio.load(sTemplate, {decodeEntities: false});
   if(isLikes) {
@@ -215,6 +231,7 @@ function createTablePage(oSrc, sMod) {
     var sTitle = oSrc.title;
     var sImage = oSrc.img? "archive/img/"+oSrc.img : "archive/img/archive_tables.jpg";
     var sSource = oSrc.tooltip;
+
     var sDescription = oSrc.description? "<p>"+oSrc.description+"</p>" : "";
     var sDescriptionMore = oSrc.descriptionMore? "<p>"+oSrc.descriptionMore+"</p>" : "";
     var sURL = oSrc.url;
@@ -222,16 +239,19 @@ function createTablePage(oSrc, sMod) {
     var aTables = [];
     var aSchemes = oSrc.schemes;
     var aSrc = oSrc.src;
+    const taglist = oSrc.tags? getTaglist(oSrc.tags) : null;
 
     aSrc.forEach(function(el){
 
       var sTable = el.l;
-      var sTableTitle = el.title? el.title : "Р РµР·СѓР»СЊС‚Р°С‚";
+
+      var sTableTitle = el.title? el.title : "Результат";
 
       aTables.push(createTable(sTable, "numericTable", sTableTitle));
     });
 
     var sLink = (sURL)? "<a href='"+sURL+"'>"+sSource+"</a>": sSource;
+
     var sRandomizer = "<a href='https://tentaculus.ru/random/#item="+sRandom+"'>"+sRandomizator+"</a>";
     var sGoback = "<p class='noRedString breadcrumps'>" + sGoToMain +sGoBackDelimiter+"<a href='/archive'>"+sArchiveTitle+"</a>"+sGoBackDelimiter+"<a href='/archive/tables'>"+sTablesTitle+"</a>"+sGoBackDelimiter + sTitle+"</p>";
 
@@ -252,14 +272,16 @@ function createTablePage(oSrc, sMod) {
                    sDescription+
                    sDescriptionMore+
                    aTables.join("") +
+                   taglist +
                    "<hr>"+
                    sGoback +
                    "<p class='noRedString'>"+sSourceTitle+": "+sLink+"</p>" +
                    "<p class='noRedString'>"+sRandomizer+"</p>";
 
     let sPage = createPage(sTemplate, sContent, sTitle, aImg, true, true);
+
     savePage(sPage, sPathToTablestOutput + "/"+sRandom+".html");
-  }
+}
 
 // just loop to create article's pages with tables
 function createTables() {
@@ -278,7 +300,7 @@ function createTables() {
 // create page with list of random tables articles
 function createTableList() {
   createTables(); //img =  "<img src='"+img_300+"' srcset='"+img_500+" 500w, "+img_800+" 800w, "+sImage+" 2000w' style='width: 100%' alt=''>";
-  const sImage = "<img src='archive/img/archive_tables__300.jpg' srcset='archive/img/archive_tables__500.jpg 500w, archive/img/archive_tables__800.jpg 800w, archive/img/archive_tables.jpg 2000w' style='width: 100%' alt=''>"; 
+  const sImage = "<img src='archive/img/archive_tables__300.jpg' srcset='archive/img/archive_tables__500.jpg 500w, archive/img/archive_tables__800.jpg 800w, archive/img/archive_tables.jpg 2000w' style='width: 100%' alt=''>";
   const aImg = [
     "archive/img/archive_tables.jpg",
     "archive/img/archive_tables__800.jpg",
@@ -300,6 +322,8 @@ function createTexts(sSourcePath, sOutputPath) {
 
       const $ = cheerio.load(fileContent.toString());
       const title = $("h1").text();
+      const taglist = $('.taglist').eq(0)? getTaglist(s$('.taglist').eq(0).text()) : null;
+
       const img = $("img")? $("img").attr('src') : "archive/img/archive_articles.jpg";
 
       const img_300 = img.replace(".","__300.");
@@ -312,12 +336,15 @@ function createTexts(sSourcePath, sOutputPath) {
       }
 
       const sGoback = "<p class='noRedString breadcrumps'>"+sGoToMain+sGoBackDelimiter+"<a href='/archive'>"+sArchiveTitle+"</a>"+sGoBackDelimiter+"<a href='/archive/articles'>"+sArticlesTitle+"</a>"+sGoBackDelimiter + title+"</p>";
+
       $("p").first().before(sGoback);
       $("p").last().after("<hr>"+sGoback);
-      const content = $.html();
+      const content = $.html()+taglist;
+
 
       const page = createPage(sTemplate, content, title, aImg, true, true);
       savePage(page, sOutputPath + "/" + fileName, "sinc");
+
     }
   });
 }
@@ -334,11 +361,13 @@ function createTextList(sSourcePath, sOutputPath) {
       const $ = cheerio.load(sBody, {decodeEntities: false});
       const fileTitle = $('h1').text();
       const description = $('.description').eq(0)? $('.description').eq(0).text() : null;
+      const taglist = $('.taglist').eq(0)? $('.taglist').eq(0).text() : null;
       //console.dir($('h1').text());
       result.push({
         title: fileTitle,
         name: file,
-        description: description
+        description: description,
+        taglist: taglist
       });
     }
   });
@@ -363,13 +392,14 @@ function createOthers(sSourcePath, sOutputPath) {
       const fileContent = fs.readFileSync(path.join(sSourcePath, file));
       const $ = cheerio.load(fileContent.toString());
       const title = $("h1").text();
+      const taglist = $('.taglist').eq(0)? getTaglist(s$('.taglist').eq(0).text()) : null;
       //console.log(title);
       const img = $("img")? $("img").attr('src') : "archive/img/archive_other.jpg";
-      
+
       let aImg = [];
       for(var i=0; i<$("img").length; i++) {
         aImg.push($("img").eq(i).attr('src'));
-        
+
         let sImgURL = $("img").eq(i).attr("src");
         let sImgObj = $("img").eq(i);
         //console.dir(sImgObj);
@@ -380,7 +410,7 @@ function createOthers(sSourcePath, sOutputPath) {
       const sGoback = "<p class='noRedString breadcrumps'>"+sGoToMain+sGoBackDelimiter+"<a href='/archive'>"+sArchiveTitle+"</a>"+sGoBackDelimiter+"<a href='/archive/other'>"+sOthersTitle+"</a>"+sGoBackDelimiter + title+"</p>";
       $("h1").first().after(sGoback);
       $("p").last().after("<hr>"+sGoback);
-      const content = $.html();
+      const content = $.html() + taglist;
       //console.dir(content);
 
       const page = createPage(sTemplate, content, title, aImg, true, true);
@@ -401,11 +431,13 @@ function createOtherList(sSourcePath, sOutputPath) {
       const $ = cheerio.load(sBody, {decodeEntities: false});
       const fileTitle = $('h1').text();
       const description = $('.description').eq(0)? $('.description').eq(0).text() : null;
+      const taglist = $('.taglist').eq(0)? $('.taglist').eq(0).text() : null;
       //console.dir($('h1').text());
       result.push({
         title: fileTitle,
         name: file,
-        description: description
+        description: description,
+        taglist: taglist
       });
     }
   });
@@ -432,6 +464,7 @@ createTableList();
 
 // create text articles from source
 createTexts(sPathToTextSource, sPathToTextOutput);
+
 // text's list
 createTextList(sPathToTextOutput, sPathToTextOutput);
 

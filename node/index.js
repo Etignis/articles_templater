@@ -19,9 +19,9 @@ const sPathToOutput = '../';
 const sTemplate = getTemplate();
 
 const sGoBackDelimiter = "<span style='color: #999'>/</span>";
-const sGoToMain = "<a href='/'>🐙</a>"; //<i class='fa fa-home' aria-hidden='true'></i>
+const sGoToMain = "<a href='/'>рџђ™</a>"; //<i class='fa fa-home' aria-hidden='true'></i>
 
-const sArchiveTitle = "Архив";
+const sArchiveTitle = "Артхив";
 const sTablesTitle = "Таблицы";
 const sArticlesTitle = "Статьи";
 const sOthersTitle = "Разное";
@@ -30,6 +30,13 @@ const sRandomizator = "Смотреть в рандомизаторе";
 const sSourceTitle = "Источник";
 
 let sGlobalTablesList, sGlobalTextsList, sGlobalOthersList;
+
+function tagnum(min, max, seed) {
+  seed = (seed<0)? -seed: seed;
+  seed = Number("0."+(seed%10));
+  console.log("seed "+ seed);
+  return Math.floor(arguments.length > 1 ? (max - min + 1) * seed + min : (min + 1) * seed);
+};
 
 // get index.html from main site and clear content
 function getTemplate(){
@@ -43,11 +50,18 @@ function getTemplate(){
 }
 
 function getTaglist(sTagline) {
-  const aTags = sTagLine.split(/\s*[;,]\s*/);
+  if(!sTagline || sTagline=='' || sTagline==undefined || sTagline==null){
+    return "";
+  }
+    
+  const aTags = sTagline.split(/\s*[;,]\s*/);
   const sTags = aTags.map(function(tag){
-    return "<a href='/archive?q="+tag+"' class='tag'>"+tag+"</a>";
+    const tagcolor = tagnum(1, 9, Number(tag.length) - Number(tag.charCodeAt(tag.length-1)) + Number(tag.charCodeAt(0))); //  - tag.charCodeAt(0) + tag.charCodeAt(tag.length-1)
+    return "<a href='/archive#q="+tag+"' class='tag c"+tagcolor+"'>#"+tag+"</a>";
   }).join(" ");
-  return "<br><span class='taglist'>#" + sTags + "</span>";
+  return "\n<br><span class='taglist'>" + sTags + "</span>";
+    //return "\n<br><span class='taglist'>#" + sTagline + "</span>";
+
 }
 
 // get list of articles with random tables
@@ -65,7 +79,7 @@ function getTablesList(sImage) {
         var sTitle = RandomItems.l[i].list[j].title;
         var sName = RandomItems.l[i].list[j].name;
 
-        var sDescription = RandomItems.l[i].list[j].description? "<br><span class='desc'>"+RandomItems.l[i].list[j].description+"</span>" : "";
+        var sDescription = RandomItems.l[i].list[j].description? "\n<br><span class='desc'>"+RandomItems.l[i].list[j].description+"</span>" : "";
         var sTagList = RandomItems.l[i].list[j].tags? getTaglist(RandomItems.l[i].list[j].tags) : "";
 
         aRows.push("<li><a href='/archive/tables/"+sName+".html'>"+sTitle+"</a>"+sDescription+sTagList+"</li>")
@@ -86,7 +100,7 @@ function getTextsList(aSource, sImage) {
   for(var j=0; aSource[j]; j++) {
     var sTitle = aSource[j].title;
     var sName = aSource[j].name;
-    var sDescription = aSource[j].description? "<br><span class='desc'>"+aSource[j].description+"</span>" : "";
+    var sDescription = aSource[j].description? "\n<br><span class='desc'>"+aSource[j].description+"</span>" : "";
     var sTags =aSource[j].taglist? getTaglist(aSource[j].taglist) : "";
 
 
@@ -104,7 +118,7 @@ function getOthersList(aSource, sImage) {
   for(var j=0; aSource[j]; j++) {
     var sTitle = aSource[j].title;
     var sName = aSource[j].name;
-    var sDescription = aSource[j].description? "<br><span class='desc'>"+aSource[j].description+"</span>" : "";
+    var sDescription = aSource[j].description? "\n<br><span class='desc'>"+aSource[j].description+"</span>" : "";
     var sTags =aSource[j].taglist? getTaglist(aSource[j].taglist) : "";
 
     aRows.push("<li><a href='archive/other/"+sName+"'>"+sTitle+"</a>"+sDescription+sTags+"</li>");
@@ -119,30 +133,37 @@ function getOthersList(aSource, sImage) {
  *  Insert page content into page element (template)
  */
 
-function createPage(sTemplate, sContent, sTitle, oImage, isComments, isLikes) {
+function createPage(sTemplate, sContent, oParams) { // sTitle, oImage, isComments, isLikes
   var oTemplate = cheerio.load(sTemplate, {decodeEntities: false});
-  if(isLikes) {
-    sContent += '<p class="noRedString"><div id="vk_like"></div></p><script type="text/javascript">VK.Widgets.Like("vk_like", {type: "full"});</script>';
+  if(oParams) {
+    if(oParams.isLikes) {
+      sContent += '\n<p class="noRedString"><div id="vk_like"></div></p><script type="text/javascript">VK.Widgets.Like("vk_like", {type: "full"});</script>';
+    }
+    if(oParams.isComments) {
+      sContent += '\n<div id="vk_comments"></div></p><script type="text/javascript">VK.Widgets.Comments("vk_comments", {limit: 10, attach: "*"});</script>';
+    }
+      
+    if(oParams.sTitle){
+      oTemplate("title").text(oParams.sTitle);
+      oTemplate("meta[property='og:title']").attr('content', oParams.sTitle);
+      oTemplate("meta[property='og:description']").attr('content', oParams.sTitle);
+    }
+    if(oParams.oImage){
+      if(typeof oParams.oImage == "string") {
+        oTemplate("meta[property='og:image']").attr('content', oParams.sImage);
+      }
+      if(Array.isArray(oParams.oImage)) {
+        oParams.oImage.forEach(function(img, i){
+          insertMetaImage(oTemplate, img, i);
+        });
+      }
+    }
+    if(oParams.ifFilteScript) {
+      oTemplate("body").append("<script type='text/javascript' src='archive/js/archive.js'></sript>")
+    }
   }
-  if(isComments) {
-    sContent += '<div id="vk_comments"></div></p><script type="text/javascript">VK.Widgets.Comments("vk_comments", {limit: 10, attach: "*"});</script>';
-  }
+  
   oTemplate("#content").html(sContent);
-  if(sTitle){
-    oTemplate("title").text(sTitle);
-    oTemplate("meta[property='og:title']").attr('content', sTitle);
-    oTemplate("meta[property='og:description']").attr('content', sTitle);
-  }
-  if(oImage){
-    if(typeof oImage == "string") {
-      oTemplate("meta[property='og:image']").attr('content', sImage);
-    }
-    if(Array.isArray(oImage)) {
-      oImage.forEach(function(img, i){
-        insertMetaImage(oTemplate, img, i);
-      });
-    }
-  }
   return oTemplate.html();
 }
 
@@ -218,7 +239,7 @@ function createTable(sTable, sMod, sTitle) {
       }
       return "<td>"+sCount + "</td><td> "  + el.trim() + "</td>";
     })
-    const sD = (aD.indexOf(nIndex-1)>=0)? "d"+(nIndex-1): "№";
+    const sD = (aD.indexOf(nIndex-1)>=0)? "d"+(nIndex-1): "в„–";
     const sTableHeader = "<tr><th>"+sD+"</th><th>"+ (sTitle? sTitle : sResultTableTitle)+"</th></tr>";
     return "<table class='randomTable'>" + sTableHeader + aTableRows.map(function(el){return "<tr>" + el + "</tr>"}).join("") + "</table>";
   }
@@ -232,8 +253,8 @@ function createTablePage(oSrc, sMod) {
     var sImage = oSrc.img? "archive/img/"+oSrc.img : "archive/img/archive_tables.jpg";
     var sSource = oSrc.tooltip;
 
-    var sDescription = oSrc.description? "<p>"+oSrc.description+"</p>" : "";
-    var sDescriptionMore = oSrc.descriptionMore? "<p>"+oSrc.descriptionMore+"</p>" : "";
+    var sDescription = oSrc.description? "\n<p>"+oSrc.description+"</p>" : "";
+    var sDescriptionMore = oSrc.descriptionMore? "\n<p>"+oSrc.descriptionMore+"</p>" : "";
     var sURL = oSrc.url;
     var sRandom = oSrc.name;
     var aTables = [];
@@ -245,7 +266,7 @@ function createTablePage(oSrc, sMod) {
 
       var sTable = el.l;
 
-      var sTableTitle = el.title? el.title : "Результат";
+      var sTableTitle = el.title? el.title : "Р РµР·СѓР»СЊС‚Р°С‚";
 
       aTables.push(createTable(sTable, "numericTable", sTableTitle));
     });
@@ -253,7 +274,7 @@ function createTablePage(oSrc, sMod) {
     var sLink = (sURL)? "<a href='"+sURL+"'>"+sSource+"</a>": sSource;
 
     var sRandomizer = "<a href='https://tentaculus.ru/random/#item="+sRandom+"'>"+sRandomizator+"</a>";
-    var sGoback = "<p class='noRedString breadcrumps'>" + sGoToMain +sGoBackDelimiter+"<a href='/archive'>"+sArchiveTitle+"</a>"+sGoBackDelimiter+"<a href='/archive/tables'>"+sTablesTitle+"</a>"+sGoBackDelimiter + sTitle+"</p>";
+    var sGoback = "\n<p class='noRedString breadcrumps'>" + sGoToMain +sGoBackDelimiter+"<a href='/archive'>"+sArchiveTitle+"</a>"+sGoBackDelimiter+"<a href='/archive/tables'>"+sTablesTitle+"</a>"+sGoBackDelimiter + sTitle+"</p>";
 
     let img = "";
     let aImg = [];
@@ -275,10 +296,10 @@ function createTablePage(oSrc, sMod) {
                    taglist +
                    "<hr>"+
                    sGoback +
-                   "<p class='noRedString'>"+sSourceTitle+": "+sLink+"</p>" +
-                   "<p class='noRedString'>"+sRandomizer+"</p>";
+                   "\n<p class='noRedString'>"+sSourceTitle+": "+sLink+"</p>" +
+                   "\n<p class='noRedString'>"+sRandomizer+"</p>";
 
-    let sPage = createPage(sTemplate, sContent, sTitle, aImg, true, true);
+    let sPage = createPage(sTemplate, sContent, {sTitle: sTitle, oImage: aImg, isComments: true, isLikes: true}); 
 
     savePage(sPage, sPathToTablestOutput + "/"+sRandom+".html");
 }
@@ -308,7 +329,7 @@ function createTableList() {
     "archive/img/archive_tables__300.jpg",
   ];
   sGlobalTablesList = getTablesList(sImage);
-  const sPage = createPage(sTemplate, sGlobalTablesList, sTablesTitle, aImg);
+  const sPage = createPage(sTemplate, sGlobalTablesList, {sTitle: sTablesTitle, oImage: aImg}); 
   savePage(sPage, sPathToTablestOutput + "/index.html");
 }
 
@@ -322,7 +343,7 @@ function createTexts(sSourcePath, sOutputPath) {
 
       const $ = cheerio.load(fileContent.toString());
       const title = $("h1").text();
-      const taglist = $('.taglist').eq(0)? getTaglist(s$('.taglist').eq(0).text()) : null;
+      const taglist = $('.hashtags').eq(0)? getTaglist($('.hashtags').eq(0).text()) : "";
 
       const img = $("img")? $("img").attr('src') : "archive/img/archive_articles.jpg";
 
@@ -335,14 +356,14 @@ function createTexts(sSourcePath, sOutputPath) {
         $("img").attr('srcset', img_500+" 500w, "+img_800+" 800w");
       }
 
-      const sGoback = "<p class='noRedString breadcrumps'>"+sGoToMain+sGoBackDelimiter+"<a href='/archive'>"+sArchiveTitle+"</a>"+sGoBackDelimiter+"<a href='/archive/articles'>"+sArticlesTitle+"</a>"+sGoBackDelimiter + title+"</p>";
+      const sGoback = "\n<p class='noRedString breadcrumps'>"+sGoToMain+sGoBackDelimiter+"<a href='/archive'>"+sArchiveTitle+"</a>"+sGoBackDelimiter+"<a href='/archive/articles'>"+sArticlesTitle+"</a>"+sGoBackDelimiter + title+"</p>";
 
       $("p").first().before(sGoback);
       $("p").last().after("<hr>"+sGoback);
       const content = $.html()+taglist;
 
 
-      const page = createPage(sTemplate, content, title, aImg, true, true);
+      const page = createPage(sTemplate, content, {sTitle: title, oImage: aImg, isComments: true, isLikes: true}); 
       savePage(page, sOutputPath + "/" + fileName, "sinc");
 
     }
@@ -360,8 +381,8 @@ function createTextList(sSourcePath, sOutputPath) {
       const sBody = fileContent.toString();
       const $ = cheerio.load(sBody, {decodeEntities: false});
       const fileTitle = $('h1').text();
-      const description = $('.description').eq(0)? $('.description').eq(0).text() : null;
-      const taglist = $('.taglist').eq(0)? $('.taglist').eq(0).text() : null;
+      const description = $('.description').eq(0)? $('.description').eq(0).text() : "";
+      const taglist = $('.hashtags').eq(0)? $('.hashtags').eq(0).text() : "";
       //console.dir($('h1').text());
       result.push({
         title: fileTitle,
@@ -379,7 +400,7 @@ function createTextList(sSourcePath, sOutputPath) {
     "archive/img/archive_articles__300.jpg",
   ];
   sGlobalTextsList = getTextsList(result, sImage);
-  const sPage = createPage(sTemplate, sGlobalTextsList, sArticlesTitle, aImg);
+  const sPage = createPage(sTemplate, sGlobalTextsList, {sTitle: sArticlesTitle, oImage: aImg}); 
   savePage(sPage, sPathToTextOutput + "/index.html");
 }
 
@@ -392,7 +413,7 @@ function createOthers(sSourcePath, sOutputPath) {
       const fileContent = fs.readFileSync(path.join(sSourcePath, file));
       const $ = cheerio.load(fileContent.toString());
       const title = $("h1").text();
-      const taglist = $('.taglist').eq(0)? getTaglist(s$('.taglist').eq(0).text()) : null;
+      const taglist = $('.hashtags').eq(0)? getTaglist($('.hashtags').eq(0).text()) : "";
       //console.log(title);
       const img = $("img")? $("img").attr('src') : "archive/img/archive_other.jpg";
 
@@ -407,13 +428,13 @@ function createOthers(sSourcePath, sOutputPath) {
       }
       //console.dir(aImg);
 
-      const sGoback = "<p class='noRedString breadcrumps'>"+sGoToMain+sGoBackDelimiter+"<a href='/archive'>"+sArchiveTitle+"</a>"+sGoBackDelimiter+"<a href='/archive/other'>"+sOthersTitle+"</a>"+sGoBackDelimiter + title+"</p>";
+      const sGoback = "\n<p class='noRedString breadcrumps'>"+sGoToMain+sGoBackDelimiter+"<a href='/archive'>"+sArchiveTitle+"</a>"+sGoBackDelimiter+"<a href='/archive/other'>"+sOthersTitle+"</a>"+sGoBackDelimiter + title+"</p>";
       $("h1").first().after(sGoback);
       $("p").last().after("<hr>"+sGoback);
       const content = $.html() + taglist;
       //console.dir(content);
 
-      const page = createPage(sTemplate, content, title, aImg, true, true);
+      const page = createPage(sTemplate, content, {sTitle: title, oImage: aImg, isComments: true, isLikes: true}); 
       savePage(page, sOutputPath + "/" + fileName, "sinc");
     }
   });
@@ -430,8 +451,8 @@ function createOtherList(sSourcePath, sOutputPath) {
       const sBody = fileContent.toString();
       const $ = cheerio.load(sBody, {decodeEntities: false});
       const fileTitle = $('h1').text();
-      const description = $('.description').eq(0)? $('.description').eq(0).text() : null;
-      const taglist = $('.taglist').eq(0)? $('.taglist').eq(0).text() : null;
+      const description = $('.description').eq(0)? $('.description').eq(0).text() : "";
+      const taglist = $('.hashtags').eq(0)? $('.hashtags').eq(0).text() : "";
       //console.dir($('h1').text());
       result.push({
         title: fileTitle,
@@ -449,13 +470,13 @@ function createOtherList(sSourcePath, sOutputPath) {
     "archive/img/archive_other__300.jpg",
   ];
   sGlobalOthersList = getOthersList(result, sImage);
-  const sPage = createPage(sTemplate, sGlobalOthersList, sOthersTitle, aImg);
+  const sPage = createPage(sTemplate, sGlobalOthersList, { sTitle: sOthersTitle, oImage:aImg});
   savePage(sPage, sOutputPath + "/index.html");
 }
 
 // creata main page for article part of site with list of all articles
 function createIndexPage() {
-  const sPage = createPage(sTemplate, sGlobalTablesList + sGlobalTextsList + sGlobalOthersList);
+  const sPage = createPage(sTemplate, sGlobalTablesList + sGlobalTextsList + sGlobalOthersList, {ifFilteScript: true}); 
   savePage(sPage, "../index.html");
 }
 

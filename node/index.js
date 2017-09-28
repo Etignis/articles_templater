@@ -55,7 +55,7 @@ function getTaglist(sTagline) {
     
   const aTags = sTagline.split(/\s*[;,]\s*/);
   const sTags = aTags.map(function(tag){
-    const tagcolor = tagnum(tag, 9); //  - tag.charCodeAt(0) + tag.charCodeAt(tag.length-1)
+    const tagcolor = tagnum(tag, 11); //  - tag.charCodeAt(0) + tag.charCodeAt(tag.length-1)
     return "<a href='/archive#q="+tag+"' class='tag c"+tagcolor+"'>#"+tag+"</a>";
   }).join(" ");
   return "\n<br><span class='taglist'>" + sTags + "</span>";

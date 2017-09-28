@@ -19,7 +19,7 @@ const sPathToOutput = '../';
 const sTemplate = getTemplate();
 
 const sGoBackDelimiter = "<span style='color: #999'>/</span>";
-const sGoToMain = "<a href='/'>рџђ™</a>"; //<i class='fa fa-home' aria-hidden='true'></i>
+const sGoToMain = "<a href='/'>🐙</a>"; //<i class='fa fa-home' aria-hidden='true'></i>
 
 const sArchiveTitle = "Артхив";
 const sTablesTitle = "Таблицы";
@@ -31,11 +31,10 @@ const sSourceTitle = "Источник";
 
 let sGlobalTablesList, sGlobalTextsList, sGlobalOthersList;
 
-function tagnum(min, max, seed) {
-  seed = (seed<0)? -seed: seed;
-  seed = Number("0."+(seed%10));
-  console.log("seed "+ seed);
-  return Math.floor(arguments.length > 1 ? (max - min + 1) * seed + min : (min + 1) * seed);
+function tagnum(sTag, nMaxColor) {
+  const codesSum = sTag.split('').map(c => c.charCodeAt(0)).reduce((acc, i) => acc + i);
+  
+  return codesSum % nMaxColor;
 };
 
 // get index.html from main site and clear content
@@ -56,7 +55,7 @@ function getTaglist(sTagline) {
     
   const aTags = sTagline.split(/\s*[;,]\s*/);
   const sTags = aTags.map(function(tag){
-    const tagcolor = tagnum(1, 9, Number(tag.length) - Number(tag.charCodeAt(tag.length-1)) + Number(tag.charCodeAt(0))); //  - tag.charCodeAt(0) + tag.charCodeAt(tag.length-1)
+    const tagcolor = tagnum(tag, 9); //  - tag.charCodeAt(0) + tag.charCodeAt(tag.length-1)
     return "<a href='/archive#q="+tag+"' class='tag c"+tagcolor+"'>#"+tag+"</a>";
   }).join(" ");
   return "\n<br><span class='taglist'>" + sTags + "</span>";

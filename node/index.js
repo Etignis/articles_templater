@@ -55,8 +55,8 @@ function getTaglist(sTagline) {
     
   const aTags = sTagline.split(/\s*[;,]\s*/);
   const sTags = aTags.map(function(tag){
-    const tagcolor = tagnum(tag, 11); //  - tag.charCodeAt(0) + tag.charCodeAt(tag.length-1)
-    return "<a href='/archive#q="+tag+"' class='tag c"+tagcolor+"'>#"+tag+"</a>";
+    const tagcolor = tagnum(tag, 10); //  - tag.charCodeAt(0) + tag.charCodeAt(tag.length-1)
+    return "<a href='/archive#q="+tag+"' class='tag c"+tagcolor+"'>"+tag+"</a>";
   }).join(" ");
   return "\n<br><span class='taglist'>" + sTags + "</span>";
     //return "\n<br><span class='taglist'>#" + sTagline + "</span>";
@@ -79,7 +79,7 @@ function getTablesList(sImage) {
         var sName = RandomItems.l[i].list[j].name;
 
         var sDescription = RandomItems.l[i].list[j].description? "\n<br><span class='desc'>"+RandomItems.l[i].list[j].description+"</span>" : "";
-        var sTagList = RandomItems.l[i].list[j].tags? getTaglist(RandomItems.l[i].list[j].tags) : "";
+        var sTagList = RandomItems.l[i].list[j].tags? getTaglist(RandomItems.l[i].list[j].tags) : "-";
 
         aRows.push("<li><a href='/archive/tables/"+sName+".html'>"+sTitle+"</a>"+sDescription+sTagList+"</li>")
 

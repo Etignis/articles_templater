@@ -9,7 +9,7 @@ $(window).load(function(){
     if(sHash && !/[^\w\d\/_=-]/.test(sHash)) {
       var sTags = sHash.match(/q=([\w\d]+)/);
       if(sTags[1]) {
-        filterLists("#"+sTags[1]);
+        filterLists(sTags[1]);
         showClerFilter();
       }
     } else {

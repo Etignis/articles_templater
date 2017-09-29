@@ -181,6 +181,7 @@ function savePage(sContent, sPath, sMode) {
   if(sMode == 'sinc') {
     try{
       fs.writeFileSync(sPath, sContent);
+      console.log("The file was saved! \""+sPath+"\"");
     }catch (e){
         console.log("Cannot write file \""+sPath+"\": ", e);
     }
@@ -341,30 +342,31 @@ function createTexts(sSourcePath, sOutputPath) {
       const fileContent = fs.readFileSync(path.join(sSourcePath, file));
 
       const $ = cheerio.load(fileContent.toString());
-      const title = $("h1").text();
-      const taglist = $('.hashtags').eq(0)? getTaglist($('.hashtags').eq(0).text()) : "";
+      if(!$(".notready").length>0){
+        const title = $("h1").text();
+        const taglist = $('.hashtags').eq(0)? getTaglist($('.hashtags').eq(0).text()) : "";
 
-      const img = $("img")? $("img").attr('src') : "archive/img/archive_articles.jpg";
+        const img = $("img")? $("img").attr('src') : "archive/img/archive_articles.jpg";
 
-      const img_300 = img.replace(".","__300.");
-      const img_500 = img.replace(".","__500.");
-      const img_800 = img.replace(".","__800.");
-      const aImg = [img, img_800, img_500, img_300];
-      if($("img").length > 0) {
-        $("img").attr('src', img_300);
-        $("img").attr('srcset', img_500+" 500w, "+img_800+" 800w");
+        const img_300 = img.replace(".","__300.");
+        const img_500 = img.replace(".","__500.");
+        const img_800 = img.replace(".","__800.");
+        const aImg = [img, img_800, img_500, img_300];
+        if($("img").length > 0) {
+          $("img").attr('src', img_300);
+          $("img").attr('srcset', img_500+" 500w, "+img_800+" 800w");
+        }
+
+        const sGoback = "\n<p class='noRedString breadcrumps'>"+sGoToMain+sGoBackDelimiter+"<a href='/archive'>"+sArchiveTitle+"</a>"+sGoBackDelimiter+"<a href='/archive/articles'>"+sArticlesTitle+"</a>"+sGoBackDelimiter + title+"</p>";
+
+        $("h1").first().after(sGoback);
+        $("p").last().after("<hr>"+sGoback);
+        const content = $.html()+taglist;
+
+
+        const page = createPage(sTemplate, content, {sTitle: title, oImage: aImg, isComments: true, isLikes: true}); 
+        savePage(page, sOutputPath + "/" + fileName, "sinc");
       }
-
-      const sGoback = "\n<p class='noRedString breadcrumps'>"+sGoToMain+sGoBackDelimiter+"<a href='/archive'>"+sArchiveTitle+"</a>"+sGoBackDelimiter+"<a href='/archive/articles'>"+sArticlesTitle+"</a>"+sGoBackDelimiter + title+"</p>";
-
-      $("h1").first().after(sGoback);
-      $("p").last().after("<hr>"+sGoback);
-      const content = $.html()+taglist;
-
-
-      const page = createPage(sTemplate, content, {sTitle: title, oImage: aImg, isComments: true, isLikes: true}); 
-      savePage(page, sOutputPath + "/" + fileName, "sinc");
-
     }
   });
 }

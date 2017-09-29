@@ -21,7 +21,7 @@ const sTemplate = getTemplate();
 const sGoBackDelimiter = "<span style='color: #999'>/</span>";
 const sGoToMain = "<a href='/'>🐙</a>"; //<i class='fa fa-home' aria-hidden='true'></i>
 
-const sArchiveTitle = "Артхив";
+const sArchiveTitle = "Архив";
 const sTablesTitle = "Таблицы";
 const sArticlesTitle = "Статьи";
 const sOthersTitle = "Разное";
@@ -58,7 +58,7 @@ function getTaglist(sTagline) {
     const tagcolor = tagnum(tag, 10); //  - tag.charCodeAt(0) + tag.charCodeAt(tag.length-1)
     return "<a href='/archive#q="+tag+"' class='tag c"+tagcolor+"'>"+tag+"</a>";
   }).join(" ");
-  return "\n<br><span class='taglist'>" + sTags + "</span>";
+  return "\n<p class='taglist noRedString' style='margin-top: .1em'>" + sTags + "</p>";
     //return "\n<br><span class='taglist'>#" + sTagline + "</span>";
 
 }
@@ -139,7 +139,7 @@ function createPage(sTemplate, sContent, oParams) { // sTitle, oImage, isComment
       sContent += '\n<p class="noRedString"><div id="vk_like"></div></p><script type="text/javascript">VK.Widgets.Like("vk_like", {type: "full"});</script>';
     }
     if(oParams.isComments) {
-      sContent += '\n<div id="vk_comments"></div></p><script type="text/javascript">VK.Widgets.Comments("vk_comments", {limit: 10, attach: "*"});</script>';
+      sContent += '\n<div id="vk_comments" style="position: relative"><span style="color: #bbb; position: absolute; left: .4em; z-index: -1">Если у вас не отображаются комментарии, значит либо запрещен доступ к сайту vk.com, либо стоит блокировщик всякого такого.</span></div></p><script type="text/javascript">VK.Widgets.Comments("vk_comments", {limit: 10, attach: "*"});</script>';
     }
       
     if(oParams.sTitle){
@@ -292,10 +292,10 @@ function createTablePage(oSrc, sMod) {
                    sDescription+
                    sDescriptionMore+
                    aTables.join("") +
-                   taglist +
+                   "\n<p class='noRedString'>"+sSourceTitle+": "+sLink+"</p>" +
                    "<hr>"+
                    sGoback +
-                   "\n<p class='noRedString'>"+sSourceTitle+": "+sLink+"</p>" +
+                   taglist +
                    "\n<p class='noRedString'>"+sRandomizer+"</p>";
 
     let sPage = createPage(sTemplate, sContent, {sTitle: sTitle, oImage: aImg, isComments: true, isLikes: true}); 
@@ -357,7 +357,7 @@ function createTexts(sSourcePath, sOutputPath) {
 
       const sGoback = "\n<p class='noRedString breadcrumps'>"+sGoToMain+sGoBackDelimiter+"<a href='/archive'>"+sArchiveTitle+"</a>"+sGoBackDelimiter+"<a href='/archive/articles'>"+sArticlesTitle+"</a>"+sGoBackDelimiter + title+"</p>";
 
-      $("p").first().before(sGoback);
+      $("h1").first().after(sGoback);
       $("p").last().after("<hr>"+sGoback);
       const content = $.html()+taglist;
 

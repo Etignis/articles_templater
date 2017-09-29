@@ -239,7 +239,7 @@ function createTable(sTable, sMod, sTitle) {
       }
       return "<td>"+sCount + "</td><td> "  + el.trim() + "</td>";
     })
-    const sD = (aD.indexOf(nIndex-1)>=0)? "d"+(nIndex-1): "в„–";
+    const sD = (aD.indexOf(nIndex-1)>=0)? "d"+(nIndex-1): "№";
     const sTableHeader = "<tr><th>"+sD+"</th><th>"+ (sTitle? sTitle : sResultTableTitle)+"</th></tr>";
     return "<table class='randomTable'>" + sTableHeader + aTableRows.map(function(el){return "<tr>" + el + "</tr>"}).join("") + "</table>";
   }
@@ -266,7 +266,7 @@ function createTablePage(oSrc, sMod) {
 
       var sTable = el.l;
 
-      var sTableTitle = el.title? el.title : "Р РµР·СѓР»СЊС‚Р°С‚";
+      var sTableTitle = el.title? el.title : sResultTableTitle;
 
       aTables.push(createTable(sTable, "numericTable", sTableTitle));
     });
@@ -384,12 +384,21 @@ function createTextList(sSourcePath, sOutputPath) {
       const fileTitle = $('h1').text();
       const description = $('.description').eq(0)? $('.description').eq(0).text() : "";
       const taglist = $('.hashtags').eq(0)? $('.hashtags').eq(0).text() : "";
+      let dateString = $('.date').eq(0)? $('.date').eq(0).text() : "";
+      if(dateString) {
+        const aDate = dateString.split(".");
+        const sDay = aDate[0];
+        const sMonth = aDate[1];
+        const sYear = aDate[2];
+        dateString = new Date(sYear, sMonth, sDay);
+      }
       //console.dir($('h1').text());
       result.push({
         title: fileTitle,
         name: file,
         description: description,
-        taglist: taglist
+        taglist: taglist,
+        date: dateString
       });
     }
   });
@@ -400,6 +409,13 @@ function createTextList(sSourcePath, sOutputPath) {
     "archive/img/archive_articles__500.jpg",
     "archive/img/archive_articles__300.jpg",
   ];
+  result = result.sort(function(a,b){
+    if (a.date < b.date)
+      return -1;
+    if (a.date > b.date)
+      return 1;
+    return 0;
+  });
   sGlobalTextsList = getTextsList(result, sImage);
   const sPage = createPage(sTemplate, sGlobalTextsList, {sTitle: sArticlesTitle, oImage: aImg}); 
   savePage(sPage, sPathToTextOutput + "/index.html");

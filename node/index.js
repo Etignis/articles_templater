@@ -85,7 +85,9 @@ function getTablesList(sImage) {
 
       }
     }
-    aList.push(sPartTitle+"<ul class='tagable'>"+aRows.join("")+"</ul>")
+    if(aRows.length>0){
+      aList.push(sPartTitle+"<ul class='tagable'>"+aRows.join("")+"</ul>");
+    }
   }
   var sSectionTitle = "<h1 id='tables_section'>"+sTablesTitle+"</h1>";
   return sSectionTitle+sImage+aList.join("");
@@ -98,7 +100,7 @@ function getTextsList(aSource, sImage) {
      sImage="";
   for(var j=0; aSource[j]; j++) {
     var sTitle = aSource[j].title;
-    var sName = aSource[j].name;
+    var sName = aSource[j].name;//.replace(".html", "");
     var sDescription = aSource[j].description? "\n<br><span class='desc'>"+aSource[j].description+"</span>" : "";
     var sTags =aSource[j].taglist? getTaglist(aSource[j].taglist) : "";
 
@@ -116,7 +118,7 @@ function getOthersList(aSource, sImage) {
      sImage="";
   for(var j=0; aSource[j]; j++) {
     var sTitle = aSource[j].title;
-    var sName = aSource[j].name;
+    var sName = aSource[j].name;//.replace(".html", "");;
     var sDescription = aSource[j].description? "\n<br><span class='desc'>"+aSource[j].description+"</span>" : "";
     var sTags =aSource[j].taglist? getTaglist(aSource[j].taglist) : "";
 
@@ -334,6 +336,7 @@ function createTableList() {
   $Page("h1").after(sGoback);
   const sPage = createPage(sTemplate, $Page.html(), {sTitle: sTablesTitle, oImage: aImg, ifFilteScript: false}); 
   savePage(sPage, sPathToTablestOutput + "/index.html");
+  //savePage(sPage, "../tables.html");
 }
 
 // loop to creat the page to each text article
@@ -425,6 +428,7 @@ function createTextList(sSourcePath, sOutputPath) {
   $Page("h1").after(sGoback);
   const sPage = createPage(sTemplate, $Page.html(), {sTitle: sArticlesTitle, oImage: aImg, ifFilteScript: false}); 
   savePage(sPage, sPathToTextOutput + "/index.html");
+  //savePage(sPage, "../articles.html");
 }
 
 // loop to creat the page to each ther article
@@ -498,6 +502,7 @@ function createOtherList(sSourcePath, sOutputPath) {
   $Page("h1").after(sGoback);
   const sPage = createPage(sTemplate, $Page.html(), { sTitle: sOthersTitle, oImage:aImg, ifFilteScript: false});
   savePage(sPage, sOutputPath + "/index.html");
+  //savePage(sPage, "../other.html");
 }
 
 // creata main page for article part of site with list of all articles
@@ -511,6 +516,7 @@ function createIndexPage() {
   
   const sPage = createPage(sTemplate, sHeader + sPrevText + sFinishContent, {ifFilteScript: true}); 
   savePage(sPage, "../index.html");
+  //savePage(sPage, "../../archive.html");
 }
 
 // table's list

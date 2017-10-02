@@ -8,9 +8,13 @@ $(window).load(function(){
     var sHash = window.location.hash.slice(1); // /archive#q=hashtag
     if(sHash && !/[^\w\d\/_=-]/.test(sHash)) {
       var sTags = sHash.match(/q=([\w\d]+)/);
-      if(sTags[1]) {
+      if(sTags && sTags[1]) {
         filterLists(sTags[1]);
         showClerFilter();
+      } else {
+        $('html, body').animate({
+          scrollTop: $("#"+sHash).offset().top
+        }, 200);
       }
     } else {
       removeHash();
@@ -23,7 +27,7 @@ $(window).load(function(){
     return false;
   }
   function showClerFilter(){
-    $("h1").each(function(){
+    $("h1, h2").each(function(){
       if($(this).find("a.clearFilter").length < 1) {
         $(this).append("<a href='/archive' class='clearFilter'>Очистить фильтр</a>")
       } else {
@@ -40,7 +44,7 @@ $(window).load(function(){
       $("#content li").show();
       return false;
     }
-    $("#content li").each(function(li){
+    $("ul.tagable li").each(function(li){
       var aTags = [];
       $(this).find('.taglist a').each(function(el){aTags.push($(this).text())});
       $(this).hide();
@@ -60,7 +64,19 @@ $(window).load(function(){
     var sURL = window.location.href; // "https://tentaculus.ru/archive/#q=DnD
     var sHash =  /#([\w\d_=,&-]+)/.exec($(this).attr('href'))[1];
     if(!/\/archive\/[\w\d_]+/.testsURL) {
-      var sTag = $(this).text();
+      //var sTag = $(this).text();
+
+      //filterLists(sTag);
+      //showClerFilter();
+      window.location.hash = sHash;
+      return false;
+    }
+  });
+  $(".section_link").live('click', function(){
+    var sURL = window.location.href; // "https://tentaculus.ru/archive/#q=DnD
+    var sHash =  /#([\w\d_=,&-]+)/.exec($(this).attr('href'))[1];
+    if(!/\/archive\/[\w\d_]+/.testsURL) {
+      //var sTag = $(this).text();
 
       //filterLists(sTag);
       //showClerFilter();

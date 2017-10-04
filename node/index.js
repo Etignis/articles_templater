@@ -16,6 +16,8 @@ const sPathToOtherOutput = '../other';
 const sPathToTablestOutput = '../tables';
 const htmlExt = '.html';
 const sPathToOutput = '../';
+const SiteURL = "https://tentaculus.ru";
+const SiteName = "Dr.Tentaculus";
 const sTemplate = getTemplate();
 
 const sGoBackDelimiter = "<span style='color: #999'>/</span>";
@@ -105,11 +107,11 @@ function getTextsList(aSource, sImage) {
     var sTags =aSource[j].taglist? getTaglist(aSource[j].taglist) : "";
 
 
-    aRows.push("<li><a href='archive/articles/"+sName+"'>"+sTitle+"</a>"+sDescription+sTags+"</li>");
+    aRows.push("<li><a href='archive/articles/"+sName+"'>"+sTitle+"</a>"+sDescription+sTags+"</li>\n\t");
   }
 
   var sTitle = "<h1 id='articles_section'>"+sArticlesTitle+"</h1>";
-  return sTitle+sImage+"<ul class='tagable'>"+aRows.join("")+"</ul>";
+  return sTitle+sImage+"<ul class='tagable'>\n\t"+aRows.join("")+"</ul>\n\t";
 }
 // get list of other articles
 function getOthersList(aSource, sImage) {
@@ -137,11 +139,22 @@ function getOthersList(aSource, sImage) {
 function createPage(sTemplate, sContent, oParams) { // sTitle, oImage, isComments, isLikes
   var oTemplate = cheerio.load(sTemplate, {decodeEntities: false});
   if(oParams) {
+    const pageLink = (oParams.pageLink)?", pageUrl: \""+oParams.pageLink+"\"" : "";
+    const pageID = (oParams.pageLink)?", \""+oParams.pageLink+"\"" : "";
+    const pageTitle = (oParams.sTitle)?", pageTitle: \""+SiteName+" - "+oParams.sTitle+"\"" : "";
+    let pageImg = "";
+    if(oParams.oImage){
+      if(typeof oParams.oImage == "string") {
+        pageImg = ", pageImage: \""+SiteURL+"/"+oParams.sImage + "\"";
+      }else if(Array.isArray(oParams.oImage)) {
+        pageImg = ", pageImage: \""+SiteURL+"/"+oParams.oImage[0] + "\"";
+      }
+    }
     if(oParams.isLikes) {
-      sContent += '\n<p class="noRedString"><div id="vk_like"></div></p><script type="text/javascript">VK.Widgets.Like("vk_like", {type: "full"});</script>';
+      sContent += '\n<p class="noRedString"><div id="vk_like"></div></p><script type="text/javascript">VK.Widgets.Like("vk_like", {type: "full"'+pageLink+pageTitle+pageImg+'}'+pageID+');</script>';
     }
     if(oParams.isComments) {
-      sContent += '\n<div id="vk_comments" style="position: relative"><span style="color: #bbb; position: absolute; left: .4em; z-index: -1">Если у вас не отображаются комментарии, значит либо запрещен доступ к сайту vk.com, либо стоит блокировщик всякого такого.</span></div></p><script type="text/javascript">VK.Widgets.Comments("vk_comments", {limit: 10, attach: "*"});</script>';
+      sContent += '\n<div id="vk_comments" style="position: relative"><span style="color: #bbb; position: absolute; left: .4em; z-index: -1">Если у вас не отображаются комментарии, значит либо запрещен доступ к сайту vk.com, либо стоит блокировщик всякого такого.</span></div></p><script type="text/javascript">VK.Widgets.Comments("vk_comments", {limit: 10, attach: "*"'+pageLink+'}'+pageID+');</script>';
     }
       
     if(oParams.sTitle){
@@ -152,8 +165,7 @@ function createPage(sTemplate, sContent, oParams) { // sTitle, oImage, isComment
     if(oParams.oImage){
       if(typeof oParams.oImage == "string") {
         oTemplate("meta[property='og:image']").attr('content', oParams.sImage);
-      }
-      if(Array.isArray(oParams.oImage)) {
+      } else if(Array.isArray(oParams.oImage)) {
         oParams.oImage.forEach(function(img, i){
           insertMetaImage(oTemplate, img, i);
         });
@@ -301,7 +313,7 @@ function createTablePage(oSrc, sMod) {
                    taglist +
                    "\n<p class='noRedString'>"+sRandomizer+"</p>";
 
-    let sPage = createPage(sTemplate, sContent, {sTitle: sTitle, oImage: aImg, isComments: true, isLikes: true}); 
+    let sPage = createPage(sTemplate, sContent, {sTitle: sTitle, oImage: aImg, isComments: true, isLikes: true, pageLink: SiteURL+"/tables/"+sRandom+".html"}); 
 
     savePage(sPage, sPathToTablestOutput + "/"+sRandom+".html");
 }
@@ -348,7 +360,7 @@ function createTexts(sSourcePath, sOutputPath) {
       const fileContent = fs.readFileSync(path.join(sSourcePath, file));
 
       const $ = cheerio.load(fileContent.toString());
-      if(!$(".notready").length>0){
+     // if(!$(".notready").length>0){
         const title = $("h1").text();
         const taglist = $('.hashtags').eq(0)? getTaglist($('.hashtags').eq(0).text()) : "";
 
@@ -370,9 +382,9 @@ function createTexts(sSourcePath, sOutputPath) {
         const content = $.html()+taglist;
 
 
-        const page = createPage(sTemplate, content, {sTitle: title, oImage: aImg, isComments: true, isLikes: true}); 
+        const page = createPage(sTemplate, content, {sTitle: title, oImage: aImg, isComments: true, isLikes: true, pageLink: SiteURL+"/articles/"+fileName}); 
         savePage(page, sOutputPath + "/" + fileName, "sinc");
-      }
+      //}
     }
   });
 }
@@ -387,25 +399,27 @@ function createTextList(sSourcePath, sOutputPath) {
       const fileContent = fs.readFileSync(path.join(sSourcePath, file));
       const sBody = fileContent.toString();
       const $ = cheerio.load(sBody, {decodeEntities: false});
-      const fileTitle = $('h1').text();
-      const description = $('.description').eq(0)? $('.description').eq(0).text() : "";
-      const taglist = $('.hashtags').eq(0)? $('.hashtags').eq(0).text() : "";
-      let dateString = $('.date').eq(0)? $('.date').eq(0).text() : "";
-      if(dateString) {
-        const aDate = dateString.split(".");
-        const sDay = aDate[0];
-        const sMonth = aDate[1];
-        const sYear = aDate[2];
-        dateString = new Date(sYear, sMonth, sDay);
+      if(!$(".notready").length>0){          
+        const fileTitle = $('h1').text();
+        const description = $('.description').eq(0)? $('.description').eq(0).text() : "";
+        const taglist = $('.hashtags').eq(0)? $('.hashtags').eq(0).text() : "";
+        let dateString = $('.date').eq(0)? $('.date').eq(0).text() : "";
+        if(dateString) {
+          const aDate = dateString.split(".");
+          const sDay = aDate[0];
+          const sMonth = aDate[1];
+          const sYear = aDate[2];
+          dateString = new Date(sYear, sMonth, sDay);
+        }
+        //console.dir($('h1').text());
+        result.push({
+          title: fileTitle,
+          name: file,
+          description: description,
+          taglist: taglist,
+          date: dateString
+        });
       }
-      //console.dir($('h1').text());
-      result.push({
-        title: fileTitle,
-        name: file,
-        description: description,
-        taglist: taglist,
-        date: dateString
-      });
     }
   });
   const sImage = "<img src='archive/img/archive_articles__300.jpg' srcset='archive/img/archive_articles__500.jpg 500w, archive/img/archive_articles__800.jpg 800w, archive/img/archive_articles.jpg 2000w' style='width: 100%' alt=''>";
@@ -461,7 +475,7 @@ function createOthers(sSourcePath, sOutputPath) {
       const content = $.html() + taglist;
       //console.dir(content);
 
-      const page = createPage(sTemplate, content, {sTitle: title, oImage: aImg, isComments: true, isLikes: true}); 
+      const page = createPage(sTemplate, content, {sTitle: title, oImage: aImg, isComments: true, isLikes: true, pageLink: SiteURL+"/other/"+fileName}); 
       savePage(page, sOutputPath + "/" + fileName, "sinc");
     }
   });

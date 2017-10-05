@@ -6,10 +6,10 @@ node/config.js
 css/
 img/
 other/
-source/other
 tables/
 text/
 articles/
+!source/other/
 
 other.html
 articles.html

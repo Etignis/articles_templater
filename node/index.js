@@ -469,10 +469,17 @@ function createTextList(sSourcePath, sOutputPath) {
 function createOthers(sSourcePath, sOutputPath) {
   console.log("Render other's articles");
   fs.readdirSync(sSourcePath).forEach(file => {
-    if (path.extname(file) === htmlExt) {
-      const fileName = path.basename(file);
+    if (path.extname(file) === htmlExt || path.extname(file) === mdExt) {
+      const fileName = path.basename(file).split(".")[0] + ".html";
       const fileContent = fs.readFileSync(path.join(sSourcePath, file));
-      const $ = cheerio.load(fileContent.toString());
+      let sourceText = fileContent.toString();
+      // md 2 html
+      if (path.extname(file) === mdExt) {
+        sourceText = MD2HTMLconverter.makeHtml(sourceText);
+      }
+      // /md 2 html
+      
+      const $ = cheerio.load(sourceText);
       const title = $("h1").eq(0).text();
       const taglist = $('.hashtags').eq(0)? getTaglist($('.hashtags').eq(0).text()) : "";
       //console.log(title);

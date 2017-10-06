@@ -15,6 +15,7 @@ const sPathToOtherSource = '../source/other';
 const sPathToOtherOutput = '../other';
 const sPathToTablestOutput = '../tables';
 const htmlExt = '.html';
+const mdExt = '.md';
 const sPathToOutput = '../';
 const SiteURL = "https://tentaculus.ru";
 const SiteName = "Dr.Tentaculus";

@@ -15,6 +15,6 @@
     "ftpsync": "^0.2.0",
     "gm": "^1.23.0",
     "child_process": "^1.0.2",
-    "marked": "^0.3.6"
+    "showdown": "^1.7.5"
   }
 }

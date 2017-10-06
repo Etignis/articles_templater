@@ -4,6 +4,8 @@ const fs = require('fs');
 const argv = require('yargs').argv;
 const cheerio = require('cheerio');
 const path = require('path');
+const showdown  = require('showdown');
+const MD2HTMLconverter = new showdown.Converter();
 
 /// articles index page
 const sPathToSrc = '../../random/js/items.js';
@@ -356,17 +358,27 @@ function createTableList() {
 function createTexts(sSourcePath, sOutputPath) {
   console.log("Render text's articles");
   fs.readdirSync(sSourcePath).forEach(file => {
-    if (path.extname(file) === htmlExt) {
-      const fileName = path.basename(file);
+    if (path.extname(file) === htmlExt || path.extname(file) === mdExt) {
+      const fileName = path.basename(file).split(".")[0] + ".html";
       const fileContent = fs.readFileSync(path.join(sSourcePath, file));
-
-      const $ = cheerio.load(fileContent.toString());
+      let sourceText = fileContent.toString();
+      // md 2 html
+      if (path.extname(file) === mdExt) {
+        sourceText = MD2HTMLconverter.makeHtml(sourceText);
+      }
+      // /md 2 html
+      
+      const $ = cheerio.load(sourceText);
      // if(!$(".notready").length>0){
         const title = $("h1").text();
         const taglist = $('.hashtags').eq(0)? getTaglist($('.hashtags').eq(0).text()) : "";
 
-        const img = $("img")? $("img").attr('src') : "archive/img/archive_articles.jpg";
+        const img = $("img")? $("img").eq(0).attr('src') : "archive/img/archive_articles.jpg";
 
+        $("img").each(function(i, el){
+            $(this).parent("p").addClass("noRedString");
+        });
+        
         const img_300 = img.replace(".","__300.");
         const img_500 = img.replace(".","__500.");
         const img_800 = img.replace(".","__800.");

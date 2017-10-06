@@ -91,7 +91,7 @@ function getTablesList(sImage) {
       }
     }
     if(aRows.length>0){
-      aList.push(sPartTitle+"<ul class='tagable'>"+aRows.join("")+"</ul>");
+      aList.push(sPartTitle+"<ul class='tagable noBullets'>"+aRows.join("")+"</ul>");
     }
   }
   var sSectionTitle = "<h1 id='tables_section'>"+sTablesTitle+"</h1>";
@@ -109,12 +109,11 @@ function getTextsList(aSource, sImage) {
     var sDescription = aSource[j].description? "\n<br><span class='desc'>"+aSource[j].description+"</span>" : "";
     var sTags =aSource[j].taglist? getTaglist(aSource[j].taglist) : "";
 
-
     aRows.push("<li><a href='archive/articles/"+sName+"'>"+sTitle+"</a>"+sDescription+sTags+"</li>\n\t");
   }
 
   var sTitle = "<h1 id='articles_section'>"+sArticlesTitle+"</h1>";
-  return sTitle+sImage+"<ul class='tagable'>\n\t"+aRows.join("")+"</ul>\n\t";
+  return sTitle+sImage+"<ul class='tagable noBullets'>\n\t"+aRows.join("")+"</ul>\n\t";
 }
 // get list of other articles
 function getOthersList(aSource, sImage) {
@@ -132,7 +131,7 @@ function getOthersList(aSource, sImage) {
   }
 
   var sTitle = "<h1 id='othes_section'>"+sOthersTitle+"</h1>";
-  return sTitle+sImage+"<ul class='tagable'>"+aRows.join("")+"</ul>";
+  return sTitle+sImage+"<ul class='tagable noBullets'>"+aRows.join("")+"</ul>";
 }
 
 /*
@@ -323,6 +322,7 @@ function createTablePage(oSrc, sMod) {
 
 // just loop to create article's pages with tables
 function createTables() {
+  console.log("Render table's articles");
   for(var i=0; RandomItems.l[i]; i++) {
     for(var j=0; RandomItems.l[i].list[j]; j++) {
       if(
@@ -362,15 +362,22 @@ function createTexts(sSourcePath, sOutputPath) {
       const fileName = path.basename(file).split(".")[0] + ".html";
       const fileContent = fs.readFileSync(path.join(sSourcePath, file));
       let sourceText = fileContent.toString();
+      const bNotReady = /^notready!/.test(sourceText);
+      if(bNotReady) { 
+          sourceText.replace(/^notready![\s\r\n\t]*/, "");
+      }
       // md 2 html
       if (path.extname(file) === mdExt) {
         sourceText = MD2HTMLconverter.makeHtml(sourceText);
       }
       // /md 2 html
-      
+
       const $ = cheerio.load(sourceText);
      // if(!$(".notready").length>0){
-        const title = $("h1").text();
+        if(bNotReady) { 
+          $("h1").eq(0).addClass("notready");
+        }
+        const title = $("h1").eq(0).text();
         const taglist = $('.hashtags').eq(0)? getTaglist($('.hashtags').eq(0).text()) : "";
 
         const img = $("img")? $("img").eq(0).attr('src') : "archive/img/archive_articles.jpg";
@@ -466,7 +473,7 @@ function createOthers(sSourcePath, sOutputPath) {
       const fileName = path.basename(file);
       const fileContent = fs.readFileSync(path.join(sSourcePath, file));
       const $ = cheerio.load(fileContent.toString());
-      const title = $("h1").text();
+      const title = $("h1").eq(0).text();
       const taglist = $('.hashtags').eq(0)? getTaglist($('.hashtags').eq(0).text()) : "";
       //console.log(title);
       const img = $("img")? $("img").attr('src') : "archive/img/archive_other.jpg";
@@ -534,9 +541,10 @@ function createOtherList(sSourcePath, sOutputPath) {
 
 // creata main page for article part of site with list of all articles
 function createIndexPage() {
+  console.log("Render index page");
+  
   const sHeader = "<h1>Архив</h1>";
-
-  const sPrevText = "<p class='noRedString'>В этом разделе собраны материалы, распределенные по нескольким категориям.\n<ul>\n<li> <a class='section_link' href='archive#tables_section'>Таблицы</a> - Таблицы случайных вещей, сокровищ, событий, слухов и прочего.</li>\n<li> <a class='section_link' href='archive#articles_section'>Статьи</a> - Статьи и заметки с советами по проведению Настольных Ролевых Игр.</li>\n<li> <a class='section_link' href='archive#othes_section'>Разное</a> - Все остальные материалы.</li>\n</ul>\n</p>";
+  const sPrevText = "<p class='noRedString'>В этом разделе собраны материалы, распределенные по нескольким категориям.\n<ul class='noBullets'>\n<li> <a class='section_link' href='archive#tables_section'>Таблицы</a> - Таблицы случайных вещей, сокровищ, событий, слухов и прочего.</li>\n<li> <a class='section_link' href='archive#articles_section'>Статьи</a> - Статьи и заметки с советами по проведению Настольных Ролевых Игр.</li>\n<li> <a class='section_link' href='archive#othes_section'>Разное</a> - Все остальные материалы.</li>\n</ul>\n</p>";
   // replace Hn -> Hn-1
   const sStartContent = sGlobalTablesList + sGlobalTextsList + sGlobalOthersList;
   const sFinishContent = sStartContent.replace(/\bh2\b/gi, "h3").replace(/\bh1\b/gi, "h2");

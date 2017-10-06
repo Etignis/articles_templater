@@ -421,7 +421,7 @@ function createTextList(sSourcePath, sOutputPath) {
       const $ = cheerio.load(sBody, {decodeEntities: false});
       if(!$(".notready").length>0){          
         const fileTitle = $('h1').text();
-        const description = $('.description').eq(0)? $('.description').eq(0).text() : "";
+        const description = $('.description').eq(0)? $('.description').eq(0).html() : "";
         const taglist = $('.hashtags').eq(0)? $('.hashtags').eq(0).text() : "";
         let dateString = $('.date').eq(0)? $('.date').eq(0).text() : "";
         if(dateString) {
@@ -578,7 +578,7 @@ function createOtherList(sSourcePath, sOutputPath) {
       const sBody = fileContent.toString();
       const $ = cheerio.load(sBody, {decodeEntities: false});
       const fileTitle = $('h1').text();
-      const description = $('.description').eq(0)? $('.description').eq(0).text() : "";
+      const description = $('.description').eq(0)? $('.description').eq(0).html() : (($("p").length>0)? $("p").eq(0).html() : "");
       const taglist = $('.hashtags').eq(0)? $('.hashtags').eq(0).text() : "";
       //console.dir($('h1').text());
       result.push({

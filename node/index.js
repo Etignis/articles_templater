@@ -579,13 +579,22 @@ function createOtherList(sSourcePath, sOutputPath) {
       const $ = cheerio.load(sBody, {decodeEntities: false});
       const fileTitle = $('h1').text();
       const description = $('.description').eq(0)? $('.description').eq(0).html() : (($("p").length>0)? $("p").eq(0).html() : "");
-      const taglist = $('.hashtags').eq(0)? $('.hashtags').eq(0).text() : "";
+      const taglist = $('.hashtags').eq(0)? $('.hashtags').eq(0).text() : ""; 
+      let dateString = $('.date').eq(0)? $('.date').eq(0).text() : "";
+      if(dateString) {
+        const aDate = dateString.split(".");
+        const sDay = aDate[0];
+        const sMonth = aDate[1];
+        const sYear = aDate[2];
+        dateString = new Date(sYear, sMonth, sDay);
+      }
       //console.dir($('h1').text());
       result.push({
         title: fileTitle,
         name: file,
         description: description,
-        taglist: taglist
+        taglist: taglist,
+        date: dateString
       });
     }
   });
@@ -596,6 +605,13 @@ function createOtherList(sSourcePath, sOutputPath) {
     "archive/img/archive_other__500.jpg",
     "archive/img/archive_other__300.jpg",
   ];
+  result = result.sort(function(a,b){
+    if (a.date < b.date)
+      return -1;
+    if (a.date > b.date)
+      return 1;
+    return 0;
+  });
   sGlobalOthersList = getOthersList(result, sImage);
   const sGoback = "\n<p class='noRedString breadcrumps'>"+sGoToMain+sGoBackDelimiter+"<a href='/archive'>"+sArchiveTitle+"</a>"+sGoBackDelimiter+sOthersTitle+"</p>";
   const $Page = cheerio.load(sGlobalOthersList);

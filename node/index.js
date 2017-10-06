@@ -465,6 +465,65 @@ function createTextList(sSourcePath, sOutputPath) {
   //savePage(sPage, "../articles.html");
 }
 
+//TODO to do it...
+function createInnerContent(sSourcePath, sOutputPath, oParams){
+  if(oParams && oParams.consoleStart) console.log(oParams.consoleStart);
+  fs.readdirSync(sSourcePath).forEach(file => {
+    if (path.extname(file) === htmlExt || path.extname(file) === mdExt) {
+      const fileName = path.basename(file).split(".")[0] + ".html";
+      const fileContent = fs.readFileSync(path.join(sSourcePath, file));
+      let sourceText = fileContent.toString();
+      const bNotReady = /^notready!/.test(sourceText);
+      if(bNotReady) { 
+          sourceText.replace(/^notready![\s\r\n\t]*/, "");
+      }
+      // md 2 html
+      if (path.extname(file) === mdExt) {
+        sourceText = MD2HTMLconverter.makeHtml(sourceText);
+      }
+      // /md 2 html
+
+      const $ = cheerio.load(sourceText);
+     // if(!$(".notready").length>0){
+        if(bNotReady) { 
+          $("h1").eq(0).addClass("notready");
+        }
+        const title = $("h1").eq(0).text();
+        const taglist = $('.hashtags').eq(0)? getTaglist($('.hashtags').eq(0).text()) : "";
+
+        const img = $("img")? $("img").eq(0).attr('src') : ((oParams && oParams.placeholderImage)? oParams.placeholderImage : "../../_img/og_huge.jpg");
+
+        $("img").each(function(i, el){
+            $(this).parent("p").addClass("noRedString");
+        });
+        if(oParams && oParams.bImagesSizes){
+          const img_300 = img.replace(".","__300.");
+          const img_500 = img.replace(".","__500.");
+          const img_800 = img.replace(".","__800.");
+          const aImg = [img, img_800, img_500, img_300];
+          if($("img").length > 0) {
+            $("img").attr('src', img_300);
+            $("img").attr('srcset', img_500+" 500w, "+img_800+" 800w");
+          }
+        } else {
+          const aImg = [img];
+        }
+
+
+        const sGoback = "\n<p class='noRedString breadcrumps'>"+sGoToMain+sGoBackDelimiter+"<a href='/archive'>"+sArchiveTitle+"</a>"+sGoBackDelimiter+"<a href='/archive/articles'>"+sArticlesTitle+"</a>"+sGoBackDelimiter + title+"</p>";
+
+        $("h1").first().after(sGoback);
+        $("p").last().after("<hr>"+sGoback);
+        const content = $.html()+taglist;
+
+
+        const page = createPage(sTemplate, content, {sTitle: title, oImage: aImg, isComments: true, isLikes: true, pageLink: SiteURL+"/articles/"+fileName}); 
+        savePage(page, sOutputPath + "/" + fileName, "sinc");
+      //}
+    }
+  });
+}
+
 // loop to creat the page to each ther article
 function createOthers(sSourcePath, sOutputPath) {
   console.log("Render other's articles");

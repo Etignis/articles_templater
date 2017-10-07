@@ -126,12 +126,12 @@ function getOthersList(aSource, sImage) {
     var sDescription = aSource[j].description? "\n<br><span class='desc'>"+aSource[j].description+"</span>" : "";
     var sTags =aSource[j].taglist? getTaglist(aSource[j].taglist) : "";
 
-    aRows.push("<li><a href='archive/other/"+sName+"'>"+sTitle+"</a>"+sDescription+sTags+"</li>");
+    aRows.push("<li><a href='archive/other/"+sName+"'>"+sTitle+"</a>"+sDescription+sTags+"</li>\n");
 
   }
 
-  var sTitle = "<h1 id='othes_section'>"+sOthersTitle+"</h1>";
-  return sTitle+sImage+"<ul class='tagable noBullets'>"+aRows.join("")+"</ul>";
+  var sTitle = "<h1 id='othes_section'>"+sOthersTitle+"</h1>\n";
+  return sTitle+sImage+"<ul class='tagable noBullets'>\n"+aRows.join("")+"</ul>\n";
 }
 
 /*

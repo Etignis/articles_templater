@@ -362,9 +362,9 @@ function createTexts(sSourcePath, sOutputPath) {
       const fileName = path.basename(file).split(".")[0] + ".html";
       const fileContent = fs.readFileSync(path.join(sSourcePath, file));
       let sourceText = fileContent.toString();
-      const bNotReady = /^notready!/.test(sourceText);
+      const bNotReady = /^[\s\t\r\n]*notready!/.test(sourceText);
       if(bNotReady) { 
-          sourceText.replace(/^notready![\s\r\n\t]*/, "");
+          sourceText.replace(/^[\s\t\r\n]*notready![\s\r\n\t]*/, "");
       }
       // md 2 html
       if (path.extname(file) === mdExt) {
@@ -473,9 +473,9 @@ function createInnerContent(sSourcePath, sOutputPath, oParams){
       const fileName = path.basename(file).split(".")[0] + ".html";
       const fileContent = fs.readFileSync(path.join(sSourcePath, file));
       let sourceText = fileContent.toString();
-      const bNotReady = /^notready!/.test(sourceText);
+      const bNotReady = /^[\s\t\r\n]*notready!/.test(sourceText);
       if(bNotReady) { 
-          sourceText.replace(/^notready![\s\r\n\t]*/, "");
+          sourceText.replace(/^[\s\t\r\n]*notready![\s\r\n\t]*/, "");
       }
       // md 2 html
       if (path.extname(file) === mdExt) {

@@ -8,7 +8,11 @@ const path = require('path');
 const cp = require('child_process');
 
 const jpgExt = '.jpg';
-const sImgPath = "../img";
+const oImgPath = [
+                "../img",
+                "../img/articles",
+                "../img/tables",
+                ];
 
 const pathname = argv._[0] || null;
 
@@ -31,13 +35,28 @@ function resizeImage(sPath, file) {
 }
 
 function manageFolder(path) {
+  var aPath = [];
   if(!path){
-    path = sImgPath;
+    aPath = oImgPath;
+  } else {
+    if(typeof path == "string") {
+      aPath.push(path);
+    } else{
+      console.log("ERROR! Path should be string.");
+      return false;
+    }
   }
-  console.log("Start resizing in dir \""+path+"\"...");
-  fs.readdirSync(path).forEach(file => {
-   resizeImage(path, file)
-  });
+  aPath.forEach(function(sPath){
+    console.log("Start resizing in dir \""+sPath+"\"...");
+    try{
+      fs.readdirSync(sPath).forEach(file => {
+       resizeImage(sPath, file);
+      });
+    } catch (err) {
+      console.dir(err);
+    };
+  }) ;
+
 }
 
 console.log("pathname: "+pathname);

@@ -266,7 +266,7 @@ function createTable(sTable, sMod, sTitle) {
 // add title, image etc to table to create content for page
 function createTablePage(oSrc, sMod) {
     var sTitle = oSrc.title;
-    var sImage = oSrc.img? "archive/img/"+oSrc.img : "archive/img/archive_tables.jpg";
+    var sImage = oSrc.img? "archive/img/tables/"+oSrc.img : "archive/img/archive_tables.jpg";
     var sSource = oSrc.tooltip;
 
     var sDescription = oSrc.description? "\n<p>"+oSrc.description+"</p>" : "";
@@ -279,11 +279,8 @@ function createTablePage(oSrc, sMod) {
     const taglist = oSrc.tags? getTaglist(oSrc.tags) : null;
 
     aSrc.forEach(function(el){
-
       var sTable = el.l;
-
       var sTableTitle = el.title? el.title : sResultTableTitle;
-
       aTables.push(createTable(sTable, "numericTable", sTableTitle));
     });
 
@@ -362,9 +359,9 @@ function createTexts(sSourcePath, sOutputPath) {
       const fileName = path.basename(file).split(".")[0] + ".html";
       const fileContent = fs.readFileSync(path.join(sSourcePath, file));
       let sourceText = fileContent.toString();
-      const bNotReady = /^notready!/.test(sourceText);
+      const bNotReady = /^[\s\t\r\n]*notready!/.test(sourceText);
       if(bNotReady) { 
-          sourceText.replace(/^notready![\s\r\n\t]*/, "");
+          sourceText.replace(/^[\s\t\r\n]*notready![\s\r\n\t]*/, "");
       }
       // md 2 html
       if (path.extname(file) === mdExt) {
@@ -380,12 +377,12 @@ function createTexts(sSourcePath, sOutputPath) {
         const title = $("h1").eq(0).text();
         const taglist = $('.hashtags').eq(0)? getTaglist($('.hashtags').eq(0).text()) : "";
 
-        const img = $("img")? $("img").eq(0).attr('src') : "archive/img/archive_articles.jpg";
+        const img = ($("img") && $("img").eq(0).attr('src'))? $("img").eq(0).attr('src') : "archive/img/archive_articles.jpg";
 
         $("img").each(function(i, el){
             $(this).parent("p").addClass("noRedString");
         });
-        
+        console.log(img);
         const img_300 = img.replace(".","__300.");
         const img_500 = img.replace(".","__500.");
         const img_800 = img.replace(".","__800.");
@@ -473,9 +470,9 @@ function createInnerContent(sSourcePath, sOutputPath, oParams){
       const fileName = path.basename(file).split(".")[0] + ".html";
       const fileContent = fs.readFileSync(path.join(sSourcePath, file));
       let sourceText = fileContent.toString();
-      const bNotReady = /^notready!/.test(sourceText);
+      const bNotReady = /^[\s\t\r\n]*notready!/.test(sourceText);
       if(bNotReady) { 
-          sourceText.replace(/^notready![\s\r\n\t]*/, "");
+          sourceText.replace(/^[\s\t\r\n]*notready![\s\r\n\t]*/, "");
       }
       // md 2 html
       if (path.extname(file) === mdExt) {

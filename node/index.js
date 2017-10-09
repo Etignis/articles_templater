@@ -108,8 +108,12 @@ function getTextsList(aSource, sImage) {
     var sName = aSource[j].name;//.replace(".html", "");
     var sDescription = aSource[j].description? "\n<br><span class='desc'>"+aSource[j].description+"</span>" : "";
     var sTags =aSource[j].taglist? getTaglist(aSource[j].taglist) : "";
-
-    aRows.push("<li><a href='archive/articles/"+sName+"'>"+sTitle+"</a>"+sDescription+sTags+"</li>\n\t");
+    //console.log("hidden: "+aSource[j].hiddenClass);
+    if(aSource[j].date){
+      const sDate = (aSource[j].date)? aSource[j].date.getFullYear() +"."+ aSource[j].date.getMonth() +"."+ aSource[j].date.getDate():"";
+      const sHiddenClass = (aSource[j].hiddenClass)? " class='hidden' data-date='"+sDate+"'" : "";
+      aRows.push("<li"+sHiddenClass+"><a href='archive/articles/"+sName+"'>"+sTitle+"</a>"+sDescription+sTags+"</li>\n\t");
+    }
   }
 
   var sTitle = "<h1 id='articles_section'>"+sArticlesTitle+"</h1>";
@@ -359,9 +363,13 @@ function createTexts(sSourcePath, sOutputPath) {
       const fileName = path.basename(file).split(".")[0] + ".html";
       const fileContent = fs.readFileSync(path.join(sSourcePath, file));
       let sourceText = fileContent.toString();
-      const bNotReady = /^[\s\t\r\n]*notready!/.test(sourceText);
+      const bNotReady = /[\s\t\r\n]*notready!/.test(sourceText);
       if(bNotReady) { 
-          sourceText.replace(/^[\s\t\r\n]*notready![\s\r\n\t]*/, "");
+          sourceText = sourceText.replace(/[\s\t\r\n]*notready![\s\r\n\t]*/, "");
+      }
+      const bHidTillDate = /[\s\t\r\n]*hidetilldate!/.test(sourceText);
+      if(bHidTillDate) { 
+          sourceText = sourceText.replace(/[\s\t\r\n]*hidetilldate![\s\r\n\t]*/, "");
       }
       // md 2 html
       if (path.extname(file) === mdExt) {
@@ -373,6 +381,9 @@ function createTexts(sSourcePath, sOutputPath) {
      // if(!$(".notready").length>0){
         if(bNotReady) { 
           $("h1").eq(0).addClass("notready");
+        }
+        if(bHidTillDate) { 
+          $("h1").eq(0).addClass("hidetilldate");
         }
         const title = $("h1").eq(0).text();
         const taglist = $('.hashtags').eq(0)? getTaglist($('.hashtags').eq(0).text()) : "";
@@ -416,6 +427,7 @@ function createTextList(sSourcePath, sOutputPath) {
       const fileContent = fs.readFileSync(path.join(sSourcePath, file));
       const sBody = fileContent.toString();
       const $ = cheerio.load(sBody, {decodeEntities: false});
+      const sHiddenClass = ($(".hidetilldate").length>0)? true: false;
       if(!$(".notready").length>0){          
         const fileTitle = $('h1').text();
         const description = $('.description').eq(0)? $('.description').eq(0).html() : "";
@@ -434,7 +446,8 @@ function createTextList(sSourcePath, sOutputPath) {
           name: file,
           description: description,
           taglist: taglist,
-          date: dateString
+          date: dateString,
+          hiddenClass: sHiddenClass
         });
       }
     }

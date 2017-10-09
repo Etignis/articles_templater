@@ -1,5 +1,3 @@
-notready!
-
 # Как познакомить новичков с Настольными Ролевыми Играми
 
 ![](archive/img/articles/To_dnd_novice.jpg)

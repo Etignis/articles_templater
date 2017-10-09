@@ -27,6 +27,6 @@ notready!
 
 Если группа уже выполнила како-то серьезный квест, возможно квестодатель поможет им в счет оплаты задания. Или возможно он успел сдружиться с группой и искренне хочет помочь. 
 
-<p class='date noRedString'>28.07.2017</p>
+<p class='date noRedString'></p>
 <p class='hashtags'>DnD, Master, Advice, Player</p>
 <p class='noRedString'>Источник: <a href='http://inkwellideas.com/advice/when-characters-die/'>Inkwell Ideas - When Characters Die</a></p>

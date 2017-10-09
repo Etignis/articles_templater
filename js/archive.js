@@ -54,6 +54,17 @@ $(window).load(function(){
     });
   }
    
+  // hide article til date
+  function showIfDate() {
+    const sDt= new Date();
+    const sDate = sDt.getFullYear() +"."+ sDt.getMonth() +"."+ sDt.getDate();
+    $("li.hidden").each(function(){
+      if($(this).attr("data-date") <= sDate) {
+        $(this).removeClass("hidden");
+      }
+    });
+  }
+   
   $(".clearFilter").live('click', function(){
     removeHash();
     filterLists("");
@@ -87,4 +98,6 @@ $(window).load(function(){
   
   window.onhashchange = getHash;
   getHash();
+  
+  showIfDate();
 });

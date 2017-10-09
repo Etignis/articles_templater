@@ -1,6 +1,6 @@
 # Альтернативные способы завершить битву
 
-![](archive/img/how_to_end_battle.jpg)
+![](archive/img/articles/how_to_end_battle.jpg)
 
 <p class='description'>
 Вольный перевод статьи о том, как завершить битву до того, как все истекут хитпоинтами.

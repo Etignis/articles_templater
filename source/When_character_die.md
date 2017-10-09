@@ -14,19 +14,19 @@ notready!
 
 Важно вознаграждать хороший отыгрыш, в не зависимости от того, совпадают ли желания оставшихся членов партии с игроком умершего персонажа или нет. При необходимости Мастеру следует поощрять отыгрыш персонажей игроками, подсказывая какой может быть точка зрения персонажа. В некотором смысле Мастер может выступать в роли "адвоката дьявола".
 
-However, if the group decides to do what the deceased character’s player wants even if what the game master believes the character would do, it is best to play it out. The game master may make it a bit more difficult to bring the character back to life (perhaps the healing needed isn’t available from the first resource they contact) to maybe give the players second thoughts on the idea, but in the end he should work with the players.
+Однако если группа решит делать то, что хочет игрок умершего персонажа и это даже совпадает с мнением Мастера о том, что стали бы делать персонажи, лучше все это отыгрывать. Мастер может немного усложнить процес воскрешения персонажа  (возможно группа не сможет воскресить павшего в первом же городе), чтобы дать игрокам возможность обдумать все еще раз, но в конце концов, все должны прийти к общему решению.
 
-Depending on the level of magic/technology in the campaign the character can be raised from the dead through any number of spells/prayers or medicine. But even if the technology or magic for this is available, the cost may be high. In a magical setting, these are the standard spells for bringing a character back to life:
+В зависимости от уровня развития магии/технологии кампании, персонажа можно вернуть из мертвых заклинаниями, молитвами или с помощью медицины. Но даже если магия или технология для этого существует, цена может быть высока. В магическом сеттинге есть стандартные заклинания для воскрешения персонажей:
 
-- Reincarnate (Druid 4) – This will only work one week from the time of death and if some small portion of the body from the time of death is available. An entirely new (and randomly chosen) young adult form is created for the soul to inhabit.
-- Raise Dead (Cleric 5) – This will only work if the subject is dead for less than one day per caster level and one level or hit die is lost. (1st level/one hit die creatures lose 2 points of constitution instead.) The description of resurrection implies the subject’s body must be reasonably complete.
-- Resurrection (Cleric 7) – Will work on subjects dead for up to 10 years as long as some small portion of the body from the time of death exists unless the subject died of old age. The subject loses one level/one hit die or 2 points of constitution if first level/one hit die.
-- True Resurrection (Cleric 9) – As resurrection, but no remains are needed.
+ - _[Реинкарнация](https://tentaculus.ru/spells/#q=реинкарнация)_ (5 круг) - довольно недешевое, сработает только не позже, чем через 10 дней после смерти персонажа, и требует наличия хотя бы части тела мертвеца.
+ - _[Поднять мертвого](https://tentaculus.ru/spells/#q=raise_dead)_ (5 круг) - работает практически как и _реинкарнация_, но требует целого тела, хотя чуть дешевле.
+ - _[Воскрешение](https://tentaculus.ru/spells/#q=resurrection&ls=7&le=7)_ (7 круг) - вернет душу в тело, за соответствующую плату, если со дня смерти минуло не больше 10 лет.
+ - _[Истинное Воскрешение](https://tentaculus.ru/spells/#q=resurrection&ls=9&le=9)_ (7 круг) - очень дорогое, но оживит персонажа, даже если тела не осталось.
+ 
+Группе придется оплатить оживление сопартийца. В высокоуровневой кампании деньги уже могут не быть проблемой, но если денг нет, придется искать другие способы оплаты. Возможно группа возьмет <span title='Ипотека на воскрешение...'>кредит</span>. Но вероятнее всего (особенно, если речь идет о фентези), группа возьмется за какое-нибудь непростое задание от того, кто сможет помочь им с воскрешением.
 
-The party will have to take on the burden of paying for the character to be brought back to life. In a higher level campaign, the group may have the money to pay for the character to be brought back to life. If not there are other ways to pay. Perhaps they can take out a loan. More likely in these special circumstances (especially in a fantasy setting) they will have to obligate themselves to a major quest on behalf of someone who can bring the character back to life or someone who can pay for it.
-
-If the characters have already completed a major task for someone of note that person may feel obligated to help them as a form of payment for that previous task. Or perhaps that person has become a close friend and genuinely want to help.
+Если группа уже выполнила како-то серьезный квест, возможно квестодатель поможет им в счет оплаты задания. Или возможно он успел сдружиться с группой и искренне хочет помочь. 
 
 <p class='date noRedString'>28.07.2017</p>
-<p class='hashtags'>DnD, Master, Advice, Battle</p>
+<p class='hashtags'>DnD, Master, Advice, Player</p>
 <p class='noRedString'>Источник: <a href='http://inkwellideas.com/advice/when-characters-die/'>Inkwell Ideas - When Characters Die</a></p>

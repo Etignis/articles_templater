@@ -1,5 +1,11 @@
 notready!
 
+новое:
+http://www.ongoingworlds.com/blog/2013/07/writing-character-death-scenes-in-roleplay/
+http://www.ongoingworlds.com/blog/2013/10/so-you-want-to-kill-a-rolaplay-character/
+http://www.gamegrene.com/node/146
+http://rsroleplay.wikia.com/wiki/Death_in_Role-play
+
 # Когда персонаж умирает
 
 ![](archive/img/articles/when_character_dies.jpg)

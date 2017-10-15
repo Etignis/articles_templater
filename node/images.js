@@ -28,7 +28,22 @@ function resizeImage(sPath, file) {
       const sNewPath = path.join(sPath, path.parse(file).dir, fileName+"__"+nSize+".jpg");
       console.log("Try to convert into \""+sNewPath+"\"");
       
-      cp.exec(`magick "${sSrcPath}" -resize ${nSize} "${sNewPath}"`)
+      // cp.exec(`magick "${sSrcPath}" -resize ${nSize} "${sNewPath}"`, (error) => {
+        // if (error) {
+          // console.error(`exec error: ${error}`);
+          // return;
+        // }
+      // })
+      gm(sSrcPath)
+      .resize(nSize)
+      .noProfile()
+      .write(sNewPath, function (err) {
+        if (err) {
+          console.log(err);
+        } else{
+        //  console.log('done');
+        }
+      });
 
     }); 
   }
@@ -66,7 +81,9 @@ if(pathname && fs.lstatSync(pathname).isDirectory()) {
   manageFolder(pathname);
 } else if(pathname && fs.lstatSync(pathname).isFile()) {
   console.log("I think '"+pathname+"' is a file...");
-  resizeImage(pathname);
+  const aPath = pathname.split("/[\/\\]/");
+  const sFile = aPath.pop();
+  resizeImage(aPath.join("/"), sFile);
 } else {
   console.log("I think '"+pathname+"' is a usual path");
   manageFolder();  

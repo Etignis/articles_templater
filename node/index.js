@@ -8,8 +8,8 @@ const showdown  = require('showdown');
 const MD2HTMLconverter = new showdown.Converter();
 MD2HTMLconverter.setOption('strikethrough', true); // ~~ stroken ~~
 MD2HTMLconverter.setOption('customizedHeaderId', true); // ## Sample header {real-id}     will use real-id as id
-// MD2HTMLconverter.setOption('ghCompatibleHeaderId', true); // Generate header ids compatible with github style
 // MD2HTMLconverter.setOption('rawHeaderId', true); // Remove only spaces, ' and " from generated header ids
+// MD2HTMLconverter.setOption('ghCompatibleHeaderId', true); // Generate header ids compatible with github style
 
 /// articles index page
 const sPathToSrc = '../../random/js/items.js';

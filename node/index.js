@@ -6,6 +6,10 @@ const cheerio = require('cheerio');
 const path = require('path');
 const showdown  = require('showdown');
 const MD2HTMLconverter = new showdown.Converter();
+MD2HTMLconverter.setOption('strikethrough', true); // ~~ stroken ~~
+MD2HTMLconverter.setOption('customizedHeaderId', true); // ## Sample header {real-id}     will use real-id as id
+// MD2HTMLconverter.setOption('ghCompatibleHeaderId', true); // Generate header ids compatible with github style
+// MD2HTMLconverter.setOption('rawHeaderId', true); // Remove only spaces, ' and " from generated header ids
 
 /// articles index page
 const sPathToSrc = '../../random/js/items.js';
@@ -38,7 +42,7 @@ let sGlobalTablesList, sGlobalTextsList, sGlobalOthersList;
 
 function tagnum(sTag, nMaxColor) {
   const codesSum = sTag.split('').map(c => c.charCodeAt(0)).reduce((acc, i) => acc + i);
-  
+
   return codesSum % nMaxColor;
 };
 
@@ -57,7 +61,7 @@ function getTaglist(sTagline) {
   if(!sTagline || sTagline=='' || sTagline==undefined || sTagline==null){
     return "";
   }
-    
+
   const aTags = sTagline.split(/\s*[;,]\s*/);
   const sTags = aTags.map(function(tag){
     const tagcolor = tagnum(tag, 10); //  - tag.charCodeAt(0) + tag.charCodeAt(tag.length-1)
@@ -162,7 +166,7 @@ function createPage(sTemplate, sContent, oParams) { // sTitle, oImage, isComment
     if(oParams.isComments) {
       sContent += '\n<div id="vk_comments" style="position: relative"><span style="color: #bbb; position: absolute; left: .4em; z-index: -1">Если у вас не отображаются комментарии, значит либо запрещен доступ к сайту vk.com, либо стоит блокировщик всякого такого.</span></div></p><script type="text/javascript">VK.Widgets.Comments("vk_comments", {limit: 10, attach: "*"'+pageLink+'}'+pageID+');</script>';
     }
-      
+
     if(oParams.sTitle){
       oTemplate("title").text(oParams.sTitle);
       oTemplate("meta[property='og:title']").attr('content', oParams.sTitle);
@@ -181,7 +185,7 @@ function createPage(sTemplate, sContent, oParams) { // sTitle, oImage, isComment
       oTemplate("body").append("<script type='text/javascript' src='archive/js/archive.js'></sript>")
     }
   }
-  
+
   oTemplate("#content").html(sContent);
   return oTemplate.html();
 }
@@ -316,7 +320,7 @@ function createTablePage(oSrc, sMod) {
                    taglist +
                    "\n<p class='noRedString'>"+sRandomizer+"</p>";
 
-    let sPage = createPage(sTemplate, sContent, {sTitle: sTitle, oImage: aImg, isComments: true, isLikes: true, pageLink: SiteURL+"/tables/"+sRandom+".html"}); 
+    let sPage = createPage(sTemplate, sContent, {sTitle: sTitle, oImage: aImg, isComments: true, isLikes: true, pageLink: SiteURL+"/tables/"+sRandom+".html"});
 
     savePage(sPage, sPathToTablestOutput + "/"+sRandom+".html");
 }
@@ -350,7 +354,7 @@ function createTableList() {
   const sGoback = "\n<p class='noRedString breadcrumps'>"+sGoToMain+sGoBackDelimiter+"<a href='/archive'>"+sArchiveTitle+"</a>"+sGoBackDelimiter+sTablesTitle+"</p>";
   const $Page = cheerio.load(sGlobalTablesList);
   $Page("h1").after(sGoback);
-  const sPage = createPage(sTemplate, $Page.html(), {sTitle: sTablesTitle, oImage: aImg, ifFilteScript: false}); 
+  const sPage = createPage(sTemplate, $Page.html(), {sTitle: sTablesTitle, oImage: aImg, ifFilteScript: false});
   savePage(sPage, sPathToTablestOutput + "/index.html");
   //savePage(sPage, "../tables.html");
 }
@@ -364,11 +368,11 @@ function createTexts(sSourcePath, sOutputPath) {
       const fileContent = fs.readFileSync(path.join(sSourcePath, file));
       let sourceText = fileContent.toString();
       const bNotReady = /[\s\t\r\n]*notready!/.test(sourceText);
-      if(bNotReady) { 
+      if(bNotReady) {
           sourceText = sourceText.replace(/[\s\t\r\n]*notready![\s\r\n\t]*/, "");
       }
       const bHidTillDate = /[\s\t\r\n]*hidetilldate!/.test(sourceText);
-      if(bHidTillDate) { 
+      if(bHidTillDate) {
           sourceText = sourceText.replace(/[\s\t\r\n]*hidetilldate![\s\r\n\t]*/, "");
       }
       // md 2 html
@@ -379,10 +383,10 @@ function createTexts(sSourcePath, sOutputPath) {
 
       const $ = cheerio.load(sourceText);
      // if(!$(".notready").length>0){
-        if(bNotReady) { 
+        if(bNotReady) {
           $("h1").eq(0).addClass("notready");
         }
-        if(bHidTillDate) { 
+        if(bHidTillDate) {
           $("h1").eq(0).addClass("hidetilldate");
         }
         const title = $("h1").eq(0).text();
@@ -410,7 +414,7 @@ function createTexts(sSourcePath, sOutputPath) {
         const content = $.html()+taglist;
 
 
-        const page = createPage(sTemplate, content, {sTitle: title, oImage: aImg, isComments: true, isLikes: true, pageLink: SiteURL+"/articles/"+fileName}); 
+        const page = createPage(sTemplate, content, {sTitle: title, oImage: aImg, isComments: true, isLikes: true, pageLink: SiteURL+"/articles/"+fileName});
         savePage(page, sOutputPath + "/" + fileName, "sinc");
       //}
     }
@@ -428,7 +432,7 @@ function createTextList(sSourcePath, sOutputPath) {
       const sBody = fileContent.toString();
       const $ = cheerio.load(sBody, {decodeEntities: false});
       const sHiddenClass = ($(".hidetilldate").length>0)? true: false;
-      if(!$(".notready").length>0){          
+      if(!$(".notready").length>0){
         const fileTitle = $('h1').text();
         const description = $('.description').eq(0)? $('.description').eq(0).html() : "";
         const taglist = $('.hashtags').eq(0)? $('.hashtags').eq(0).text() : "";
@@ -470,7 +474,7 @@ function createTextList(sSourcePath, sOutputPath) {
   const sGoback = "\n<p class='noRedString breadcrumps'>"+sGoToMain+sGoBackDelimiter+"<a href='/archive'>"+sArchiveTitle+"</a>"+sGoBackDelimiter+sArticlesTitle+"</p>";
   const $Page = cheerio.load(sGlobalTextsList);
   $Page("h1").after(sGoback);
-  const sPage = createPage(sTemplate, $Page.html(), {sTitle: sArticlesTitle, oImage: aImg, ifFilteScript: false}); 
+  const sPage = createPage(sTemplate, $Page.html(), {sTitle: sArticlesTitle, oImage: aImg, ifFilteScript: false});
   savePage(sPage, sPathToTextOutput + "/index.html");
   //savePage(sPage, "../articles.html");
 }
@@ -484,7 +488,7 @@ function createInnerContent(sSourcePath, sOutputPath, oParams){
       const fileContent = fs.readFileSync(path.join(sSourcePath, file));
       let sourceText = fileContent.toString();
       const bNotReady = /^[\s\t\r\n]*notready!/.test(sourceText);
-      if(bNotReady) { 
+      if(bNotReady) {
           sourceText.replace(/^[\s\t\r\n]*notready![\s\r\n\t]*/, "");
       }
       // md 2 html
@@ -495,7 +499,7 @@ function createInnerContent(sSourcePath, sOutputPath, oParams){
 
       const $ = cheerio.load(sourceText);
      // if(!$(".notready").length>0){
-        if(bNotReady) { 
+        if(bNotReady) {
           $("h1").eq(0).addClass("notready");
         }
         const title = $("h1").eq(0).text();
@@ -527,7 +531,7 @@ function createInnerContent(sSourcePath, sOutputPath, oParams){
         const content = $.html()+taglist;
 
 
-        const page = createPage(sTemplate, content, {sTitle: title, oImage: aImg, isComments: true, isLikes: true, pageLink: SiteURL+"/articles/"+fileName}); 
+        const page = createPage(sTemplate, content, {sTitle: title, oImage: aImg, isComments: true, isLikes: true, pageLink: SiteURL+"/articles/"+fileName});
         savePage(page, sOutputPath + "/" + fileName, "sinc");
       //}
     }
@@ -547,7 +551,7 @@ function createOthers(sSourcePath, sOutputPath) {
         sourceText = MD2HTMLconverter.makeHtml(sourceText);
       }
       // /md 2 html
-      
+
       const $ = cheerio.load(sourceText);
       const title = $("h1").eq(0).text();
       const taglist = $('.hashtags').eq(0)? getTaglist($('.hashtags').eq(0).text()) : "";
@@ -571,7 +575,7 @@ function createOthers(sSourcePath, sOutputPath) {
       const content = $.html() + taglist;
       //console.dir(content);
 
-      const page = createPage(sTemplate, content, {sTitle: title, oImage: aImg, isComments: true, isLikes: true, pageLink: SiteURL+"/other/"+fileName}); 
+      const page = createPage(sTemplate, content, {sTitle: title, oImage: aImg, isComments: true, isLikes: true, pageLink: SiteURL+"/other/"+fileName});
       savePage(page, sOutputPath + "/" + fileName, "sinc");
     }
   });
@@ -589,7 +593,7 @@ function createOtherList(sSourcePath, sOutputPath) {
       const $ = cheerio.load(sBody, {decodeEntities: false});
       const fileTitle = $('h1').text();
       const description = $('.description').eq(0)? $('.description').eq(0).html() : (($("p").length>0)? $("p").eq(0).html() : "");
-      const taglist = $('.hashtags').eq(0)? $('.hashtags').eq(0).text() : ""; 
+      const taglist = $('.hashtags').eq(0)? $('.hashtags').eq(0).text() : "";
       let dateString = $('.date').eq(0)? $('.date').eq(0).text() : "";
       if(dateString) {
         const aDate = dateString.split(".");
@@ -634,14 +638,14 @@ function createOtherList(sSourcePath, sOutputPath) {
 // creata main page for article part of site with list of all articles
 function createIndexPage() {
   console.log("Render index page");
-  
+
   const sHeader = "<h1>Архив</h1>";
   const sPrevText = "<p class='noRedString'>В этом разделе собраны материалы, распределенные по нескольким категориям.\n<ul class='noBullets'>\n<li> <a class='section_link' href='archive#tables_section'>Таблицы</a> - Таблицы случайных вещей, сокровищ, событий, слухов и прочего.</li>\n<li> <a class='section_link' href='archive#articles_section'>Статьи</a> - Статьи и заметки с советами по проведению Настольных Ролевых Игр.</li>\n<li> <a class='section_link' href='archive#othes_section'>Разное</a> - Все остальные материалы.</li>\n</ul>\n</p>";
   // replace Hn -> Hn-1
   const sStartContent = sGlobalTablesList + sGlobalTextsList + sGlobalOthersList;
   const sFinishContent = sStartContent.replace(/\bh2\b/gi, "h3").replace(/\bh1\b/gi, "h2");
-  
-  const sPage = createPage(sTemplate, sHeader + sPrevText + sFinishContent, {ifFilteScript: true}); 
+
+  const sPage = createPage(sTemplate, sHeader + sPrevText + sFinishContent, {ifFilteScript: true});
   savePage(sPage, "../index.html");
   //savePage(sPage, "../../archive.html");
 }

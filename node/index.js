@@ -294,7 +294,7 @@ function createTablePage(oSrc, sMod) {
 
     var sLink = (sURL)? "<a href='"+sURL+"'>"+sSource+"</a>": sSource;
 
-    var sRandomizer = "<a href='https://tentaculus.ru/random/#item="+sRandom+"'>"+sRandomizator+"</a>";
+    var sRandomizer = "<a href='https://tentaculus.ru/random/#item="+sRandom+"'>🎲 "+sRandomizator+"</a>";
     var sGoback = "\n<p class='noRedString breadcrumps'>" + sGoToMain +sGoBackDelimiter+"<a href='/archive'>"+sArchiveTitle+"</a>"+sGoBackDelimiter+"<a href='/archive/tables'>"+sTablesTitle+"</a>"+sGoBackDelimiter + sTitle+"</p>";
 
     let img = "";
@@ -315,10 +315,10 @@ function createTablePage(oSrc, sMod) {
                    sDescriptionMore+
                    aTables.join("") +
                    "\n<p class='noRedString'>"+sSourceTitle+": "+sLink+"</p>" +
+                   "\n<p class='noRedString'>"+sRandomizer+"</p>" +
                    "<hr>"+
                    sGoback +
-                   taglist +
-                   "\n<p class='noRedString'>"+sRandomizer+"</p>";
+                   taglist;
 
     let sPage = createPage(sTemplate, sContent, {sTitle: sTitle, oImage: aImg, isComments: true, isLikes: true, pageLink: SiteURL+"/tables/"+sRandom+".html"});
 

@@ -114,8 +114,10 @@ _Пример:_ Меч павшего рыцаря находится у дру�
 
 <p class='date noRedString'>31.10.2017</p>
 <p class='hashtags'>DnD, Master, Advice, Player, Character</p>
-<p class='noRedString'>Источники: <ul>
-  <li><a href='http://inkwellideas.com/advice/when-characters-die/'>Inkwell Ideas - When Characters Die</a></li>
-  <li><a href='http://rsroleplay.wikia.com/wiki/Death_in_Role-play'>RuneScape Roleplay Wiki - Death in Role-play</a></li>
-  <li><a href='http://www.ongoingworlds.com/blog/2013/10/so-you-want-to-kill-a-rolaplay-character/'>OngoingWorlds blog - So you want to kill a character…</a></li>  
+<p class='noRedString'>Источники: 
+  <ul>
+    <li><a href='http://inkwellideas.com/advice/when-characters-die/'>Inkwell Ideas - When Characters Die</a></li>
+    <li><a href='http://rsroleplay.wikia.com/wiki/Death_in_Role-play'>RuneScape Roleplay Wiki - Death in Role-play</a></li>
+    <li><a href='http://www.ongoingworlds.com/blog/2013/10/so-you-want-to-kill-a-rolaplay-character/'>OngoingWorlds blog - So you want to kill a character…</a></li>  
+  </ul> 
 </p>

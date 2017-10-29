@@ -37,6 +37,7 @@ const sOthersTitle = "Разное";
 const sResultTableTitle = "Результат";
 const sRandomizator = "Смотреть в рандомизаторе";
 const sSourceTitle = "Источник";
+const sPubDate = "Дата публикации: ";
 
 let sGlobalTablesList, sGlobalTextsList, sGlobalOthersList;
 
@@ -186,7 +187,7 @@ function createPage(sTemplate, sContent, oParams) { // sTitle, oImage, isComment
     }
   }
 
-  oTemplate("#content").html(sContent);
+  oTemplate("#content").html("<article>"+sContent+"</article>");
   return oTemplate.html();
 }
 
@@ -391,6 +392,17 @@ function createTexts(sSourcePath, sOutputPath) {
         }
         const title = $("h1").eq(0).text();
         const taglist = $('.hashtags').eq(0)? getTaglist($('.hashtags').eq(0).text()) : "";
+        
+        let dateString = $('.date').eq(0)? $('.date').eq(0).text() : "";
+        if(dateString) {
+          const aDate = dateString.split(".");
+          const sDay = aDate[0];
+          const sMonth = aDate[1];
+          const sYear = aDate[2];
+          //dateString = new Date(sYear, sMonth, sDay);
+          dateString = sPubDate + "<time pubdate datetime='"+sYear+"-"+sMonth+"-"+sDay+"' >"+dateString+"</time>";
+          $('.date').eq(0).html(dateString);
+        }
 
         const img = ($("img") && $("img").eq(0).attr('src'))? $("img").eq(0).attr('src') : "archive/img/archive_articles.jpg";
 
@@ -434,7 +446,8 @@ function createTextList(sSourcePath, sOutputPath) {
       const sHiddenClass = ($(".hidetilldate").length>0)? true: false;
       if(!$(".notready").length>0){
         const fileTitle = $('h1').text();
-        const description = $('.description').eq(0)? $('.description').eq(0).html() : "";
+        const description = ($('.description').eq(0) && $('.description').eq(0).html() != null)? $('.description').eq(0).html() : $("#content img").eq(0).parent().next("p").text();
+        
         const taglist = $('.hashtags').eq(0)? $('.hashtags').eq(0).text() : "";
         let dateString = $('.date').eq(0)? $('.date').eq(0).text() : "";
         if(dateString) {
@@ -558,6 +571,17 @@ function createOthers(sSourcePath, sOutputPath) {
       //console.log(title);
       const img = $("img")? $("img").attr('src') : "archive/img/archive_other.jpg";
 
+      let dateString = $('.date').eq(0)? $('.date').eq(0).text() : "";
+      if(dateString) {
+        const aDate = dateString.split(".");
+        const sDay = aDate[0];
+        const sMonth = aDate[1];
+        const sYear = aDate[2];
+        //dateString = new Date(sYear, sMonth, sDay);
+        dateString = sPubDate + "<time pubdate datetime='"+sYear+"-"+sMonth+"-"+sDay+"' >"+dateString+"</time>";
+        $('.date').eq(0).html(dateString);
+      }
+      
       let aImg = [];
       for(var i=0; i<$("img").length; i++) {
         aImg.push($("img").eq(i).attr('src'));

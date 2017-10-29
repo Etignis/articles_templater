@@ -36,7 +36,7 @@ $(window).load(function(){
     });
   }
   function hideClerFilter(){
-    $("h1 a.clearFilter").hide();
+    $("a.clearFilter").hide();
   }
   
   function filterLists(sTag){

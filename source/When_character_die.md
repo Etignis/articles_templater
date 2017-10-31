@@ -1,5 +1,3 @@
-hidetilldate!
-
 # Когда персонаж умирает
 
 ![](archive/img/articles/when_character_dies.jpg)

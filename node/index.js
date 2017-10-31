@@ -449,23 +449,25 @@ function createTextList(sSourcePath, sOutputPath) {
         const description = ($('.description').eq(0) && $('.description').eq(0).html() != null)? $('.description').eq(0).html() : $("#content img").eq(0).parent().next("p").text();
         
         const taglist = $('.hashtags').eq(0)? $('.hashtags').eq(0).text() : "";
-        let dateString = $('.date').eq(0)? $('.date').eq(0).text() : "";
+        let dateString = ($('.date').eq(0) && $('.date').eq(0).find("time"))? $('.date').eq(0).find("time").text() : "";
+        //console.log(fileName+": "+dateString);
         if(dateString) {
           const aDate = dateString.split(".");
           const sDay = aDate[0];
           const sMonth = aDate[1];
           const sYear = aDate[2];
+          console.log(fileName+": "+dateString);
           dateString = new Date(sYear, sMonth, sDay);
+          console.dir($('h1').text());
+          result.push({
+            title: fileTitle,
+            name: file,
+            description: description,
+            taglist: taglist,
+            date: dateString,
+            hiddenClass: sHiddenClass
+          });
         }
-        //console.dir($('h1').text());
-        result.push({
-          title: fileTitle,
-          name: file,
-          description: description,
-          taglist: taglist,
-          date: dateString,
-          hiddenClass: sHiddenClass
-        });
       }
     }
   });
@@ -483,6 +485,7 @@ function createTextList(sSourcePath, sOutputPath) {
       return 1;
     return 0;
   });
+  //console.dir(result);
   sGlobalTextsList = getTextsList(result, sImage);
   const sGoback = "\n<p class='noRedString breadcrumps'>"+sGoToMain+sGoBackDelimiter+"<a href='/archive'>"+sArchiveTitle+"</a>"+sGoBackDelimiter+sArticlesTitle+"</p>";
   const $Page = cheerio.load(sGlobalTextsList);

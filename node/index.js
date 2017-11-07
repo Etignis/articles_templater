@@ -372,8 +372,9 @@ function createTexts(sSourcePath, sOutputPath) {
       if(bNotReady) {
           sourceText = sourceText.replace(/[\s\t\r\n]*notready![\s\r\n\t]*/, "");
       }
-      const bHidTillDate = /[\s\t\r\n]*hidetilldate!/.test(sourceText);
+      const bHidTillDate = /\bhidetilldate!/.test(sourceText);
       if(bHidTillDate) {
+        console.log("Hide "+fileName);
           sourceText = sourceText.replace(/[\s\t\r\n]*hidetilldate![\s\r\n\t]*/, "");
       }
       // md 2 html
@@ -409,7 +410,7 @@ function createTexts(sSourcePath, sOutputPath) {
         $("img").each(function(i, el){
             $(this).parent("p").addClass("noRedString");
         });
-        console.log(img);
+        //console.log(img);
         const img_300 = img.replace(".","__300.");
         const img_500 = img.replace(".","__500.");
         const img_800 = img.replace(".","__800.");
@@ -456,9 +457,9 @@ function createTextList(sSourcePath, sOutputPath) {
           const sDay = aDate[0];
           const sMonth = aDate[1];
           const sYear = aDate[2];
-          console.log(fileName+": "+dateString);
+          //console.log(fileName+": "+dateString);
           dateString = new Date(sYear, sMonth, sDay);
-          console.dir($('h1').text());
+          //console.dir($('h1').text());
           result.push({
             title: fileTitle,
             name: file,

@@ -62,7 +62,7 @@ $(window).load(function(){
       if($(this).attr("data-date")){
         const aDate = $(this).attr("data-date").split(".");
         const sDay = aDate[2];
-        const sMonth = aDate[1];
+        const sMonth = aDate[1]-1;
         const sYear = aDate[0];
         dateString = new Date(sYear, sMonth, sDay);
         

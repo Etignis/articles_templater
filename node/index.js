@@ -8,7 +8,7 @@ const showdown  = require('showdown');
 const MD2HTMLconverter = new showdown.Converter();
 MD2HTMLconverter.setOption('strikethrough', true); // ~~ stroken ~~
 MD2HTMLconverter.setOption('customizedHeaderId', true); // ## Sample header {real-id}     will use real-id as id
-// MD2HTMLconverter.setOption('rawHeaderId', true); // Remove only spaces, ' and " from generated header ids
+MD2HTMLconverter.setOption('rawHeaderId', true); // Remove only spaces, ' and " from generated header ids
 // MD2HTMLconverter.setOption('ghCompatibleHeaderId', true); // Generate header ids compatible with github style
 
 /// articles index page
@@ -37,6 +37,7 @@ const sOthersTitle = "Разное";
 const sResultTableTitle = "Результат";
 const sRandomizator = "Смотреть в рандомизаторе";
 const sSourceTitle = "Источник";
+const sPubDate = "Дата публикации: ";
 
 let sGlobalTablesList, sGlobalTextsList, sGlobalOthersList;
 
@@ -188,7 +189,7 @@ function createPage(sTemplate, sContent, oParams) { // sTitle, oImage, isComment
     }
   }
 
-  oTemplate("#content").html(sContent);
+  oTemplate("#content").html("<article>"+sContent+"</article>");
   return oTemplate.html();
 }
 
@@ -296,7 +297,7 @@ function createTablePage(oSrc, sMod) {
 
     var sLink = (sURL)? "<a href='"+sURL+"'>"+sSource+"</a>": sSource;
 
-    var sRandomizer = "<a href='https://tentaculus.ru/random/#item="+sRandom+"'>"+sRandomizator+"</a>";
+    var sRandomizer = "<a href='https://tentaculus.ru/random/#item="+sRandom+"'>🎲 "+sRandomizator+"</a>";
     var sGoback = "\n<p class='noRedString breadcrumps'>" + sGoToMain +sGoBackDelimiter+"<a href='/archive'>"+sArchiveTitle+"</a>"+sGoBackDelimiter+"<a href='/archive/tables'>"+sTablesTitle+"</a>"+sGoBackDelimiter + sTitle+"</p>";
 
     let img = "";
@@ -317,10 +318,10 @@ function createTablePage(oSrc, sMod) {
                    sDescriptionMore+
                    aTables.join("") +
                    "\n<p class='noRedString'>"+sSourceTitle+": "+sLink+"</p>" +
+                   "\n<p class='noRedString'>"+sRandomizer+"</p>" +
                    "<hr>"+
                    sGoback +
-                   taglist +
-                   "\n<p class='noRedString'>"+sRandomizer+"</p>";
+                   taglist;
 
     let sPage = createPage(sTemplate, sContent, {sTitle: sTitle, oImage: aImg, isComments: true, isLikes: true, pageLink: SiteURL+"/tables/"+sRandom+".html"});
 
@@ -373,8 +374,9 @@ function createTexts(sSourcePath, sOutputPath) {
       if(bNotReady) {
           sourceText = sourceText.replace(/[\s\t\r\n]*notready![\s\r\n\t]*/, "");
       }
-      const bHidTillDate = /[\s\t\r\n]*hidetilldate!/.test(sourceText);
+      const bHidTillDate = /\bhidetilldate!/.test(sourceText);
       if(bHidTillDate) {
+        console.log("Hide "+fileName);
           sourceText = sourceText.replace(/[\s\t\r\n]*hidetilldate![\s\r\n\t]*/, "");
       }
       // md 2 html
@@ -393,13 +395,24 @@ function createTexts(sSourcePath, sOutputPath) {
         }
         const title = $("h1").eq(0).text();
         const taglist = $('.hashtags').eq(0)? getTaglist($('.hashtags').eq(0).text()) : "";
+        
+        let dateString = $('.date').eq(0)? $('.date').eq(0).text() : "";
+        if(dateString) {
+          const aDate = dateString.split(".");
+          const sDay = aDate[0];
+          const sMonth = aDate[1];
+          const sYear = aDate[2];
+          //dateString = new Date(sYear, sMonth, sDay);
+          dateString = sPubDate + "<time pubdate datetime='"+sYear+"-"+sMonth+"-"+sDay+"' >"+dateString+"</time>";
+          $('.date').eq(0).html(dateString);
+        }
 
         const img = ($("img") && $("img").eq(0).attr('src'))? $("img").eq(0).attr('src') : "archive/img/archive_articles.jpg";
 
         $("img").each(function(i, el){
             $(this).parent("p").addClass("noRedString");
         });
-        console.log(img);
+        //console.log(img);
         const img_300 = img.replace(".","__300.");
         const img_500 = img.replace(".","__500.");
         const img_800 = img.replace(".","__800.");
@@ -436,25 +449,28 @@ function createTextList(sSourcePath, sOutputPath) {
       const sHiddenClass = ($(".hidetilldate").length>0)? true: false;
       if(!$(".notready").length>0){
         const fileTitle = $('h1').text();
-        const description = $('.description').eq(0)? $('.description').eq(0).html() : "";
+        const description = ($('.description').eq(0) && $('.description').eq(0).html() != null)? $('.description').eq(0).html() : $("#content img").eq(0).parent().next("p").text();
+        
         const taglist = $('.hashtags').eq(0)? $('.hashtags').eq(0).text() : "";
-        let dateString = $('.date').eq(0)? $('.date').eq(0).text() : "";
+        let dateString = ($('.date').eq(0) && $('.date').eq(0).find("time"))? $('.date').eq(0).find("time").text() : "";
+        //console.log(fileName+": "+dateString);
         if(dateString) {
           const aDate = dateString.split(".");
           const sDay = aDate[0];
           const sMonth = aDate[1];
           const sYear = aDate[2];
+          //console.log(fileName+": "+dateString);
           dateString = new Date(sYear, sMonth, sDay);
+          //console.dir($('h1').text());
+          result.push({
+            title: fileTitle,
+            name: file,
+            description: description,
+            taglist: taglist,
+            date: dateString,
+            hiddenClass: sHiddenClass
+          });
         }
-        //console.dir($('h1').text());
-        result.push({
-          title: fileTitle,
-          name: file,
-          description: description,
-          taglist: taglist,
-          date: dateString,
-          hiddenClass: sHiddenClass
-        });
       }
     }
   });
@@ -472,6 +488,7 @@ function createTextList(sSourcePath, sOutputPath) {
       return 1;
     return 0;
   });
+  //console.dir(result);
   sGlobalTextsList = getTextsList(result, sImage);
   const sGoback = "\n<p class='noRedString breadcrumps'>"+sGoToMain+sGoBackDelimiter+"<a href='/archive'>"+sArchiveTitle+"</a>"+sGoBackDelimiter+sArticlesTitle+"</p>";
   const $Page = cheerio.load(sGlobalTextsList);
@@ -560,6 +577,17 @@ function createOthers(sSourcePath, sOutputPath) {
       //console.log(title);
       const img = $("img")? $("img").attr('src') : "archive/img/archive_other.jpg";
 
+      let dateString = $('.date').eq(0)? $('.date').eq(0).text() : "";
+      if(dateString) {
+        const aDate = dateString.split(".");
+        const sDay = aDate[0];
+        const sMonth = aDate[1];
+        const sYear = aDate[2];
+        //dateString = new Date(sYear, sMonth, sDay);
+        dateString = sPubDate + "<time pubdate datetime='"+sYear+"-"+sMonth+"-"+sDay+"' >"+dateString+"</time>";
+        $('.date').eq(0).html(dateString);
+      }
+      
       let aImg = [];
       for(var i=0; i<$("img").length; i++) {
         aImg.push($("img").eq(i).attr('src'));

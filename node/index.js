@@ -110,7 +110,8 @@ function getTextsList(aSource, sImage) {
   for(var j=0; aSource[j]; j++) {
     var sTitle = aSource[j].title;
     var sName = aSource[j].name;//.replace(".html", "");
-    var sDescription = aSource[j].description? "\n<br><span class='desc'>"+aSource[j].description+"</span>" : "";
+    var sDate = aSource[j].date.getDate()+"."+aSource[j].date.getMonth()+"."+aSource[j].date.getYear();
+    var sDescription = aSource[j].description? "\n<br><span class='desc'>"+aSource[j].description+" <span class='date'>"+sDate+"</span></span>" : "";
     var sTags =aSource[j].taglist? getTaglist(aSource[j].taglist) : "";
     //console.log("hidden: "+aSource[j].hiddenClass);
     if(aSource[j].date){
@@ -131,7 +132,8 @@ function getOthersList(aSource, sImage) {
   for(var j=0; aSource[j]; j++) {
     var sTitle = aSource[j].title;
     var sName = aSource[j].name;//.replace(".html", "");;
-    var sDescription = aSource[j].description? "\n<br><span class='desc'>"+aSource[j].description+"</span>" : "";
+    var sDate = aSource[j].date.getDate()+"."+aSource[j].date.getMonth()+"."+aSource[j].date.getYear();
+    var sDescription = aSource[j].description? "\n<br><span class='desc'>"+aSource[j].description+" <span class='date'>"+sDate+"</span></span>" : "";
     var sTags =aSource[j].taglist? getTaglist(aSource[j].taglist) : "";
 
     aRows.push("<li><a href='archive/other/"+sName+"'>"+sTitle+"</a>"+sDescription+sTags+"</li>\n");

@@ -73,6 +73,10 @@ function getTaglist(sTagline) {
 
 }
 
+function fixDate(sDt) {
+  return (Number(sDt)<10)? "0"+sDt: sDt;
+}
+
 // get list of articles with random tables
 function getTablesList(sImage) {
   var aList = [];
@@ -111,14 +115,14 @@ function getTextsList(aSource, sImage) {
   for(var j=0; aSource[j]; j++) {
     var sTitle = aSource[j].title;
     var sName = aSource[j].name;//.replace(".html", "");
-    var sDate = aSource[j].date.getDate()+"."+aSource[j].date.getMonth()+"."+aSource[j].date.getYear();
-    var sDescription = aSource[j].description? "\n<br><span class='desc'>"+aSource[j].description+" <span class='date'>"+sDate+"</span></span>" : "";
+    var sPubDate = "<span class='date' style='float: right'>"+fixDate(aSource[j].date.getDate())+"."+fixDate(aSource[j].date.getMonth())+"."+aSource[j].date.getFullYear()+"</span>";
+    var sDescription = aSource[j].description? "\n<br><span class='desc'>"+aSource[j].description+"</span>" : "";
     var sTags =aSource[j].taglist? getTaglist(aSource[j].taglist) : "";
     //console.log("hidden: "+aSource[j].hiddenClass);
     if(aSource[j].date){
       const sDate = (aSource[j].date)? aSource[j].date.getFullYear() +"."+ aSource[j].date.getMonth() +"."+ aSource[j].date.getDate():"";
       const sHiddenClass = (aSource[j].hiddenClass)? " class='hidden' data-date='"+sDate+"'" : "";
-      aRows.push("<li"+sHiddenClass+"><a href='archive/articles/"+sName+"'>"+sTitle+"</a>"+sDescription+sTags+"</li>\n\t");
+      aRows.push("<li"+sHiddenClass+"><a href='archive/articles/"+sName+"'>"+sTitle+sPubDate+"</a>"+sDescription+sTags+"</li>\n\t");
     }
   }
 
@@ -133,8 +137,8 @@ function getOthersList(aSource, sImage) {
   for(var j=0; aSource[j]; j++) {
     var sTitle = aSource[j].title;
     var sName = aSource[j].name;//.replace(".html", "");;
-    var sDate = aSource[j].date.getDate()+"."+aSource[j].date.getMonth()+"."+aSource[j].date.getYear();
-    var sDescription = aSource[j].description? "\n<br><span class='desc'>"+aSource[j].description+" <span class='date'>"+sDate+"</span></span>" : "";
+    var sPubDate = "<span class='date' style='float: right'>"+fixDate(aSource[j].date.getDate())+"."+fixDate(aSource[j].date.getMonth())+"."+aSource[j].date.getFullYear()+"</span>";
+    var sDescription = aSource[j].description? "\n<br><span class='desc'>"+aSource[j].description+"</span>" : "";
     var sTags =aSource[j].taglist? getTaglist(aSource[j].taglist) : "";
 
     aRows.push("<li><a href='archive/other/"+sName+"'>"+sTitle+"</a>"+sDescription+sTags+"</li>\n");

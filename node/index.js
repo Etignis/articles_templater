@@ -73,6 +73,10 @@ function getTaglist(sTagline) {
 
 }
 
+function fixDate(sDt) {
+  return (Number(sDt)<10)? "0"+sDt: sDt;
+}
+
 // get list of articles with random tables
 function getTablesList(sImage) {
   var aList = [];
@@ -111,13 +115,14 @@ function getTextsList(aSource, sImage) {
   for(var j=0; aSource[j]; j++) {
     var sTitle = aSource[j].title;
     var sName = aSource[j].name;//.replace(".html", "");
+    var sPubDate = "<span class='date' style='float: right'>"+fixDate(aSource[j].date.getDate())+"."+fixDate(aSource[j].date.getMonth())+"."+aSource[j].date.getFullYear()+"</span>";
     var sDescription = aSource[j].description? "\n<br><span class='desc'>"+aSource[j].description+"</span>" : "";
     var sTags =aSource[j].taglist? getTaglist(aSource[j].taglist) : "";
     //console.log("hidden: "+aSource[j].hiddenClass);
     if(aSource[j].date){
       const sDate = (aSource[j].date)? aSource[j].date.getFullYear() +"."+ aSource[j].date.getMonth() +"."+ aSource[j].date.getDate():"";
       const sHiddenClass = (aSource[j].hiddenClass)? " class='hidden' data-date='"+sDate+"'" : "";
-      aRows.push("<li"+sHiddenClass+"><a href='archive/articles/"+sName+"'>"+sTitle+"</a>"+sDescription+sTags+"</li>\n\t");
+      aRows.push("<li"+sHiddenClass+"><a href='archive/articles/"+sName+"'>"+sTitle+sPubDate+"</a>"+sDescription+sTags+"</li>\n\t");
     }
   }
 
@@ -132,6 +137,7 @@ function getOthersList(aSource, sImage) {
   for(var j=0; aSource[j]; j++) {
     var sTitle = aSource[j].title;
     var sName = aSource[j].name;//.replace(".html", "");;
+    var sPubDate = "<span class='date' style='float: right'>"+fixDate(aSource[j].date.getDate())+"."+fixDate(aSource[j].date.getMonth())+"."+aSource[j].date.getFullYear()+"</span>";
     var sDescription = aSource[j].description? "\n<br><span class='desc'>"+aSource[j].description+"</span>" : "";
     var sTags =aSource[j].taglist? getTaglist(aSource[j].taglist) : "";
 
@@ -183,7 +189,7 @@ function createPage(sTemplate, sContent, oParams) { // sTitle, oImage, isComment
       }
     }
     if(oParams.ifFilteScript) {
-      oTemplate("body").append("<script type='text/javascript' src='archive/js/archive.js'></sript>")
+      oTemplate("body").append("<script type='text/javascript' src='archive/js/archive.js'></script>")
     }
   }
 
@@ -491,7 +497,7 @@ function createTextList(sSourcePath, sOutputPath) {
   const sGoback = "\n<p class='noRedString breadcrumps'>"+sGoToMain+sGoBackDelimiter+"<a href='/archive'>"+sArchiveTitle+"</a>"+sGoBackDelimiter+sArticlesTitle+"</p>";
   const $Page = cheerio.load(sGlobalTextsList);
   $Page("h1").after(sGoback);
-  const sPage = createPage(sTemplate, $Page.html(), {sTitle: sArticlesTitle, oImage: aImg, ifFilteScript: false});
+  const sPage = createPage(sTemplate, $Page.html(), {sTitle: sArticlesTitle, oImage: aImg, ifFilteScript: true});
   savePage(sPage, sPathToTextOutput + "/index.html");
   //savePage(sPage, "../articles.html");
 }

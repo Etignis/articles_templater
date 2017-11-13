@@ -23,7 +23,10 @@ $(window).load(function(){
   }
   
   function removeHash() { 
-    history.pushState("", document.title, window.location.pathname + window.location.search);
+    try{
+      history.pushState("", document.title, window.location.pathname + window.location.search);
+    } catch(err)
+      {console.dir(err);}
     return false;
   }
   function showClerFilter(){

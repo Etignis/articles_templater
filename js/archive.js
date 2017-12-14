@@ -23,7 +23,10 @@ $(window).load(function(){
   }
   
   function removeHash() { 
-    history.pushState("", document.title, window.location.pathname + window.location.search);
+    try{
+      history.pushState("", document.title, window.location.pathname + window.location.search);
+    } catch(err)
+      {console.dir(err);}
     return false;
   }
   function showClerFilter(){
@@ -62,7 +65,7 @@ $(window).load(function(){
       if($(this).attr("data-date")){
         const aDate = $(this).attr("data-date").split(".");
         const sDay = aDate[2];
-        const sMonth = aDate[1];
+        const sMonth = aDate[1]-1;
         const sYear = aDate[0];
         dateString = new Date(sYear, sMonth, sDay);
         

@@ -189,7 +189,7 @@ function createPage(sTemplate, sContent, oParams) { // sTitle, oImage, isComment
       }
     }
     if(oParams.ifFilteScript) {
-      oTemplate("body").append("<script type='text/javascript' src='archive/js/archive.js'></sript>")
+      oTemplate("body").append("<script type='text/javascript' src='archive/js/archive.js'></script>")
     }
   }
 
@@ -497,7 +497,7 @@ function createTextList(sSourcePath, sOutputPath) {
   const sGoback = "\n<p class='noRedString breadcrumps'>"+sGoToMain+sGoBackDelimiter+"<a href='/archive'>"+sArchiveTitle+"</a>"+sGoBackDelimiter+sArticlesTitle+"</p>";
   const $Page = cheerio.load(sGlobalTextsList);
   $Page("h1").after(sGoback);
-  const sPage = createPage(sTemplate, $Page.html(), {sTitle: sArticlesTitle, oImage: aImg, ifFilteScript: false});
+  const sPage = createPage(sTemplate, $Page.html(), {sTitle: sArticlesTitle, oImage: aImg, ifFilteScript: true});
   savePage(sPage, sPathToTextOutput + "/index.html");
   //savePage(sPage, "../articles.html");
 }

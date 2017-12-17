@@ -7,12 +7,16 @@ const argv = require('yargs').argv;
 const path = require('path');
 const cp = require('child_process');
 
-const jpgExt = '.jpg';
+ const jpgExt = '.jpg';
 const oImgPath = [
                 "../img",
                 "../img/articles",
-                "../img/tables",
+                "../img/tables"
                 ];
+// const oImgPath = [
+                // "../../items/img/items"
+                // ];
+                
 
 const pathname = argv._[0] || null;
 
@@ -23,9 +27,12 @@ function resizeImage(sPath, file) {
     console.log("Resize \""+sSrcPath+"\"");
     
     const aSizes = [800, 500, 300];
-    
+    //const aSizes = [200];
     aSizes.forEach(function(nSize){
+      
       const sNewPath = path.join(sPath, path.parse(file).dir, fileName+"__"+nSize+".jpg");
+      //const sNewPath = path.join(sPath, "min_"+nSize, path.parse(file).dir, fileName+".jpg");
+      ensureDirectoryExistence(sNewPath);
       console.log("Try to convert into \""+sNewPath+"\"");
       
       // cp.exec(`magick "${sSrcPath}" -resize ${nSize} "${sNewPath}"`, (error) => {
@@ -72,6 +79,15 @@ function manageFolder(path) {
     };
   }) ;
 
+}
+
+function ensureDirectoryExistence(filePath) {
+  var dirname = path.dirname(filePath);
+  if (fs.existsSync(dirname)) {
+    return true;
+  }
+  ensureDirectoryExistence(dirname);
+  fs.mkdirSync(dirname);
 }
 
 console.log("pathname: "+pathname);

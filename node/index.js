@@ -54,6 +54,9 @@ function getTemplate(){
   $("body").addClass("maxWidth880");
   $("#content").text("");
   $("#content").addClass('ephasizedPage');
+  
+  $("head").find("link [rel='canonical']").remove();
+  $("head").find("link [rel='alternate']").remove()
   //console.dir($.html());
   return $.html();
 }

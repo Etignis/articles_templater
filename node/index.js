@@ -55,8 +55,8 @@ function getTemplate(){
   $("#content").text("");
   $("#content").addClass('ephasizedPage');
   
-  $("head").find("link [rel='canonical']").remove();
-  $("head").find("link [rel='alternate']").remove()
+  $("link [rel='canonical']").remove();
+  $("link [rel='alternate']").remove()
   //console.dir($.html());
   return $.html();
 }
@@ -181,6 +181,17 @@ function createPage(sTemplate, sContent, oParams) { // sTitle, oImage, isComment
       oTemplate("title").text(oParams.sTitle);
       oTemplate("meta[property='og:title']").attr('content', oParams.sTitle);
       oTemplate("meta[property='og:description']").attr('content', oParams.sTitle);
+    }
+    if(oParams.sDescription) {
+        let sDescription = oParams.sDescription.replace(/"/g, "'");  
+        sDescription = sDescription.replace(/[\r\n]+/g, "").trim(); 
+      //console.log("  - descript");
+      oTemplate("meta[name=description]").attr('content', sDescription);
+      oTemplate("meta[property='og:description']").attr('content', sDescription);
+    }
+    if(oParams.pageLink){
+      oTemplate("link[rel=canonical]").attr('href', oParams.pageLink);
+      oTemplate("link[rel=alternate]").attr('href', oParams.pageLink);
     }
     if(oParams.oImage){
       if(typeof oParams.oImage == "string") {
@@ -330,7 +341,7 @@ function createTablePage(oSrc, sMod) {
                    sGoback +
                    taglist;
 
-    let sPage = createPage(sTemplate, sContent, {sTitle: sTitle, oImage: aImg, isComments: true, isLikes: true, pageLink: SiteURL+"/tables/"+sRandom+".html"});
+    let sPage = createPage(sTemplate, sContent, {sDescription: oSrc.description, sTitle: sTitle, oImage: aImg, isComments: true, isLikes: true, pageLink: SiteURL+"/tables/"+sRandom+".html"});
 
     savePage(sPage, sPathToTablestOutput + "/"+sRandom+".html");
 }
@@ -394,6 +405,7 @@ function createTexts(sSourcePath, sOutputPath) {
 
       const $ = cheerio.load(sourceText);
      // if(!$(".notready").length>0){
+       //console.log($)
         if(bNotReady) {
           $("h1").eq(0).addClass("notready");
         }
@@ -401,6 +413,13 @@ function createTexts(sSourcePath, sOutputPath) {
           $("h1").eq(0).addClass("hidetilldate");
         }
         const title = $("h1").eq(0).text();
+        let sDescription = "";
+        if($('.description').eq(0) && $('.description').eq(0).html() != null) {
+          sDescription = $('.description').eq(0).text();
+        } else if($("img").eq(0) && $("img").eq(0).parent().next("p")) {
+          sDescription = $("img").eq(0).parent().next("p").text();
+        }    
+        
         const taglist = $('.hashtags').eq(0)? getTaglist($('.hashtags').eq(0).text()) : "";
         
         let dateString = $('.date').eq(0)? $('.date').eq(0).text() : "";
@@ -436,7 +455,7 @@ function createTexts(sSourcePath, sOutputPath) {
         const content = $.html()+taglist;
 
 
-        const page = createPage(sTemplate, content, {sTitle: title, oImage: aImg, isComments: true, isLikes: true, pageLink: SiteURL+"/articles/"+fileName});
+        const page = createPage(sTemplate, content, {sDescription: sDescription, sTitle: title, oImage: aImg, isComments: true, isLikes: true, pageLink: SiteURL+"/articles/"+fileName});
         savePage(page, sOutputPath + "/" + fileName, "sinc");
       //}
     }
@@ -500,7 +519,7 @@ function createTextList(sSourcePath, sOutputPath) {
   const sGoback = "\n<p class='noRedString breadcrumps'>"+sGoToMain+sGoBackDelimiter+"<a href='/archive'>"+sArchiveTitle+"</a>"+sGoBackDelimiter+sArticlesTitle+"</p>";
   const $Page = cheerio.load(sGlobalTextsList);
   $Page("h1").after(sGoback);
-  const sPage = createPage(sTemplate, $Page.html(), {sTitle: sArticlesTitle, oImage: aImg, ifFilteScript: true});
+  const sPage = createPage(sTemplate, $Page.html(), {pageLink: "https:tentaculus.ru/archive/articles/", sTitle: sArticlesTitle, oImage: aImg, ifFilteScript: true});
   savePage(sPage, sPathToTextOutput + "/index.html");
   //savePage(sPage, "../articles.html");
 }
@@ -667,7 +686,7 @@ function createOtherList(sSourcePath, sOutputPath) {
   const sGoback = "\n<p class='noRedString breadcrumps'>"+sGoToMain+sGoBackDelimiter+"<a href='/archive'>"+sArchiveTitle+"</a>"+sGoBackDelimiter+sOthersTitle+"</p>";
   const $Page = cheerio.load(sGlobalOthersList);
   $Page("h1").after(sGoback);
-  const sPage = createPage(sTemplate, $Page.html(), { sTitle: sOthersTitle, oImage:aImg, ifFilteScript: false});
+  const sPage = createPage(sTemplate, $Page.html(), {pageLink: "https:tentaculus.ru/archive/other",  sTitle: sOthersTitle, oImage:aImg, ifFilteScript: false});
   savePage(sPage, sOutputPath + "/index.html");
   //savePage(sPage, "../other.html");
 }
@@ -682,7 +701,7 @@ function createIndexPage() {
   const sStartContent = sGlobalTablesList + sGlobalTextsList + sGlobalOthersList;
   const sFinishContent = sStartContent.replace(/\bh2\b/gi, "h3").replace(/\bh1\b/gi, "h2");
 
-  const sPage = createPage(sTemplate, sHeader + sPrevText + sFinishContent, {ifFilteScript: true});
+  const sPage = createPage(sTemplate, sHeader + sPrevText + sFinishContent, {pageLink: "https:tentaculus.ru/archive/",sTitle: "Архив", ifFilteScript: true});
   savePage(sPage, "../index.html");
   //savePage(sPage, "../../archive.html");
 }

@@ -13,10 +13,7 @@ const oImgPath = [
                 "../img/articles",
                 "../img/tables"
                 ];
-// const oImgPath = [
-                // "../../items/img/items"
-                // ];
-                
+               
 
 const pathname = argv._[0] || null;
 
@@ -28,30 +25,23 @@ function resizeImage(sPath, file) {
     
     const aSizes = [800, 500, 300];
     //const aSizes = [200];
-    aSizes.forEach(function(nSize){
-      
+    aSizes.forEach(function(nSize){      
       const sNewPath = path.join(sPath, path.parse(file).dir, fileName+"__"+nSize+".jpg");
-      //const sNewPath = path.join(sPath, "min_"+nSize, path.parse(file).dir, fileName+".jpg");
-      ensureDirectoryExistence(sNewPath);
-      console.log("Try to convert into \""+sNewPath+"\"");
-      
-      // cp.exec(`magick "${sSrcPath}" -resize ${nSize} "${sNewPath}"`, (error) => {
-        // if (error) {
-          // console.error(`exec error: ${error}`);
-          // return;
-        // }
-      // })
-      gm(sSrcPath)
-      .resize(nSize)
-      .noProfile()
-      .write(sNewPath, function (err) {
-        if (err) {
-          console.log(err);
-        } else{
-        //  console.log('done');
-        }
-      });
-
+      if (!fs.existsSync(sNewPath)){
+        ensureDirectoryExistence(sNewPath);
+        console.log("Try to convert into \""+sNewPath+"\"");
+        
+        gm(sSrcPath)
+        .resize(nSize)
+        .noProfile()
+        .write(sNewPath, function (err) {
+          if (err) {
+            console.log(err);
+          } else{
+          //  console.log('done');
+          }
+        });
+      }
     }); 
   }
 }

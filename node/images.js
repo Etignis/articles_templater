@@ -5,7 +5,7 @@ const gm = require('gm').subClass({imageMagick: true});
 const argv = require('yargs').argv;
 //const cheerio = require('cheerio');
 const path = require('path');
-const cp = require('child_process');
+//const cp = require('child_process');
 
  const jpgExt = '.jpg';
 const oImgPath = [
@@ -36,7 +36,7 @@ function resizeImage(sPath, file) {
         .noProfile()
         .write(sNewPath, function (err) {
           if (err) {
-            console.log(err);
+            console.log(" :( " + err);
           } else{
           //  console.log('done');
           }

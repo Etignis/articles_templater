@@ -444,8 +444,8 @@ function createTexts(sSourcePath, sOutputPath) {
         const img_800 = img.replace(".","__800.");
         const aImg = [img, img_800, img_500, img_300];
         if($("img").length > 0) {
-          $("img").attr('src', img_300);
-          $("img").attr('srcset', img_500+" 500w, "+img_800+" 800w");
+          $("img").eq(0).attr('src', img_300);
+          $("img").eq(0).attr('srcset', img_500+" 500w, "+img_800+" 800w");
         }
 
         const sGoback = "\n<p class='noRedString breadcrumps'>"+sGoToMain+sGoBackDelimiter+"<a href='/archive'>"+sArchiveTitle+"</a>"+sGoBackDelimiter+"<a href='/archive/articles'>"+sArticlesTitle+"</a>"+sGoBackDelimiter + title+"</p>";

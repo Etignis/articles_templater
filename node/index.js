@@ -171,10 +171,10 @@ function createPage(sTemplate, sContent, oParams) { // sTitle, oImage, isComment
       }
     }
     if(oParams.isLikes) {
-      sContent += '\n<p class="noRedString"><div id="vk_like"></div></p><script type="text/javascript">VK.Widgets.Like("vk_like", {type: "full"'+pageLink+pageTitle+pageImg+'}'+pageID+');</script>';
+      sContent += '\n<p class="noRedString"><div id="vk_like"></div></p><!--script type="text/javascript">VK.Widgets.Like("vk_like", {type: "full"'+pageLink+pageTitle+pageImg+'}'+pageID+');</script-->';
     }
     if(oParams.isComments) {
-      sContent += '\n<div id="vk_comments" style="position: relative"><span style="color: #bbb; position: absolute; left: .4em; z-index: -1">Если у вас не отображаются комментарии, значит либо запрещен доступ к сайту vk.com, либо стоит блокировщик всякого такого.</span></div></p><script type="text/javascript">VK.Widgets.Comments("vk_comments", {limit: 10, attach: "*"'+pageLink+'}'+pageID+');</script>';
+      sContent += '\n<div id="vk_comments" style="position: relative; min-height: 2rem;"><span style="color: #bbb; position: absolute; left: .4em; z-index: -1">Если у вас не отображаются комментарии, значит либо запрещен доступ к сайту vk.com, либо стоит блокировщик всякого такого.</span></div></p><!--script type="text/javascript">VK.Widgets.Comments("vk_comments", {limit: 10, attach: "*"'+pageLink+'}'+pageID+');</script-->';
     }
 
     if(oParams.sTitle){
@@ -301,7 +301,7 @@ function createTablePage(oSrc, sMod) {
     var sDescription = oSrc.description? "\n<p>"+oSrc.description+"</p>" : "";
     var sDescriptionMore = oSrc.descriptionMore? "\n<p>"+oSrc.descriptionMore+"</p>" : "";
     var sURL = oSrc.url;
-    var sRandom = oSrc.name;
+    var sRandom = oSrc.name.replace(/\s+/g, "_");
     var aTables = [];
     var aSchemes = oSrc.schemes;
     var aSrc = oSrc.src;
@@ -385,7 +385,7 @@ function createTexts(sSourcePath, sOutputPath) {
   console.log("Render text's articles");
   fs.readdirSync(sSourcePath).forEach(file => {
     if (path.extname(file) === htmlExt || path.extname(file) === mdExt) {
-      const fileName = path.basename(file).split(".")[0] + ".html";
+      let fileName = path.basename(file).split(".")[0] + ".html";
       const fileContent = fs.readFileSync(path.join(sSourcePath, file));
       let sourceText = fileContent.toString();
       const bNotReady = /[\s\t\r\n]*notready!/.test(sourceText);
@@ -454,7 +454,7 @@ function createTexts(sSourcePath, sOutputPath) {
         $("p").last().after("<hr>"+sGoback);
         const content = $.html()+taglist;
 
-
+		fileName = fileName.replace(/\s+/g, "_");
         const page = createPage(sTemplate, content, {sDescription: sDescription, sTitle: title, oImage: aImg, isComments: true, isLikes: true, pageLink: SiteURL+"/articles/"+fileName});
         savePage(page, sOutputPath + "/" + fileName, "sinc");
       //}
@@ -468,7 +468,7 @@ function createTextList(sSourcePath, sOutputPath) {
   let result = [];
   fs.readdirSync(sSourcePath).forEach(file => {
     if (path.extname(file) === htmlExt && file != 'index.html') {
-      const fileName = path.basename(file);
+      let fileName = path.basename(file);
       const fileContent = fs.readFileSync(path.join(sSourcePath, file));
       const sBody = fileContent.toString();
       const $ = cheerio.load(sBody, {decodeEntities: false});
@@ -529,7 +529,7 @@ function createInnerContent(sSourcePath, sOutputPath, oParams){
   if(oParams && oParams.consoleStart) console.log(oParams.consoleStart);
   fs.readdirSync(sSourcePath).forEach(file => {
     if (path.extname(file) === htmlExt || path.extname(file) === mdExt) {
-      const fileName = path.basename(file).split(".")[0] + ".html";
+      let fileName = path.basename(file).split(".")[0] + ".html";
       const fileContent = fs.readFileSync(path.join(sSourcePath, file));
       let sourceText = fileContent.toString();
       const bNotReady = /^[\s\t\r\n]*notready!/.test(sourceText);
@@ -575,7 +575,7 @@ function createInnerContent(sSourcePath, sOutputPath, oParams){
         $("p").last().after("<hr>"+sGoback);
         const content = $.html()+taglist;
 
-
+		fileName = fileName.replace(/\s+/g, "_");
         const page = createPage(sTemplate, content, {sTitle: title, oImage: aImg, isComments: true, isLikes: true, pageLink: SiteURL+"/articles/"+fileName});
         savePage(page, sOutputPath + "/" + fileName, "sinc");
       //}
@@ -588,7 +588,7 @@ function createOthers(sSourcePath, sOutputPath) {
   console.log("Render other's articles");
   fs.readdirSync(sSourcePath).forEach(file => {
     if (path.extname(file) === htmlExt || path.extname(file) === mdExt) {
-      const fileName = path.basename(file).split(".")[0] + ".html";
+      let fileName = path.basename(file).split(".")[0] + ".html";
       const fileContent = fs.readFileSync(path.join(sSourcePath, file));
       let sourceText = fileContent.toString();
       // md 2 html
@@ -631,6 +631,7 @@ function createOthers(sSourcePath, sOutputPath) {
       const content = $.html() + taglist;
       //console.dir(content);
 
+		fileName = fileName.replace(/\s+/g, "_");
       const page = createPage(sTemplate, content, {sTitle: title, oImage: aImg, isComments: true, isLikes: true, pageLink: SiteURL+"/other/"+fileName});
       savePage(page, sOutputPath + "/" + fileName, "sinc");
     }
@@ -643,7 +644,7 @@ function createOtherList(sSourcePath, sOutputPath) {
   let result = [];
   fs.readdirSync(sSourcePath).forEach(file => {
     if (path.extname(file) === htmlExt && file != 'index.html') {
-      const fileName = path.basename(file);
+      let fileName = path.basename(file);
       const fileContent = fs.readFileSync(path.join(sSourcePath, file));
       const sBody = fileContent.toString();
       const $ = cheerio.load(sBody, {decodeEntities: false});

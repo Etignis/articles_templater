@@ -1,7 +1,8 @@
 'use strict';
 
 const fs = require('fs');
-const gm = require('gm').subClass({imageMagick: true});
+//const gm = require('gm').subClass({imageMagick: true});
+const gm = require('gm');
 const argv = require('yargs').argv;
 //const cheerio = require('cheerio');
 const path = require('path');

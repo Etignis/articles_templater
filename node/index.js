@@ -335,7 +335,7 @@ function createTablePage(oSrc, sMod) {
                    sDescription+
                    sDescriptionMore+
                    aTables.join("") +
-                   "\n<p class='noRedString'>"+sSourceTitle+": "+sLink+"</p>" +
+                   (sSource?"\n<p class='noRedString'>"+sSourceTitle+": "+sLink+"</p>": "") +
                    "\n<p class='noRedString'>"+sRandomizer+"</p>" +
                    "<hr>"+
                    sGoback +

@@ -327,7 +327,7 @@ function createTablePage(oSrc, sMod) {
                    sGoback +
                    taglist;
 
-    let sPage = createPage(sTemplate, sContent, {sTitle: sTitle, oImage: aImg, isComments: true, isLikes: true, pageLink: SiteURL+"/tables/"+sRandom+".html"});
+    let sPage = createPage(sTemplate, sContent, {sTitle: sTitle, oImage: aImg, isComments: true, isLikes: true, pageLink: SiteURL+"/archive/tables/"+sRandom+".html"});
 
     savePage(sPage, sPathToTablestOutput + "/"+sRandom+".html");
 }
@@ -399,7 +399,7 @@ function createTexts(sSourcePath, sOutputPath) {
         }
         const title = $("h1").eq(0).text();
         const taglist = $('.hashtags').eq(0)? getTaglist($('.hashtags').eq(0).text()) : "";
-        
+
         let dateString = $('.date').eq(0)? $('.date').eq(0).text() : "";
         if(dateString) {
           const aDate = dateString.split(".");
@@ -433,7 +433,7 @@ function createTexts(sSourcePath, sOutputPath) {
         const content = $.html()+taglist;
 
 
-        const page = createPage(sTemplate, content, {sTitle: title, oImage: aImg, isComments: true, isLikes: true, pageLink: SiteURL+"/articles/"+fileName});
+        const page = createPage(sTemplate, content, {sTitle: title, oImage: aImg, isComments: true, isLikes: true, pageLink: SiteURL+"/archive/articles/"+fileName});
         savePage(page, sOutputPath + "/" + fileName, "sinc");
       //}
     }
@@ -454,7 +454,7 @@ function createTextList(sSourcePath, sOutputPath) {
       if(!$(".notready").length>0){
         const fileTitle = $('h1').text();
         const description = ($('.description').eq(0) && $('.description').eq(0).html() != null)? $('.description').eq(0).html() : $("#content img").eq(0).parent().next("p").text();
-        
+
         const taglist = $('.hashtags').eq(0)? $('.hashtags').eq(0).text() : "";
         let dateString = ($('.date').eq(0) && $('.date').eq(0).find("time"))? $('.date').eq(0).find("time").text() : "";
         //console.log(fileName+": "+dateString);
@@ -554,7 +554,7 @@ function createInnerContent(sSourcePath, sOutputPath, oParams){
         const content = $.html()+taglist;
 
 
-        const page = createPage(sTemplate, content, {sTitle: title, oImage: aImg, isComments: true, isLikes: true, pageLink: SiteURL+"/articles/"+fileName});
+        const page = createPage(sTemplate, content, {sTitle: title, oImage: aImg, isComments: true, isLikes: true, pageLink: SiteURL+"/archive/articles/"+fileName});
         savePage(page, sOutputPath + "/" + fileName, "sinc");
       //}
     }
@@ -591,7 +591,7 @@ function createOthers(sSourcePath, sOutputPath) {
         dateString = sPubDate + "<time pubdate datetime='"+sYear+"-"+sMonth+"-"+sDay+"' >"+dateString+"</time>";
         $('.date').eq(0).html(dateString);
       }
-      
+
       let aImg = [];
       for(var i=0; i<$("img").length; i++) {
         aImg.push($("img").eq(i).attr('src'));
@@ -609,7 +609,7 @@ function createOthers(sSourcePath, sOutputPath) {
       const content = $.html() + taglist;
       //console.dir(content);
 
-      const page = createPage(sTemplate, content, {sTitle: title, oImage: aImg, isComments: true, isLikes: true, pageLink: SiteURL+"/other/"+fileName});
+      const page = createPage(sTemplate, content, {sTitle: title, oImage: aImg, isComments: true, isLikes: true, pageLink: SiteURL+"/archive/other/"+fileName});
       savePage(page, sOutputPath + "/" + fileName, "sinc");
     }
   });

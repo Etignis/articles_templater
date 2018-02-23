@@ -341,7 +341,7 @@ function createTablePage(oSrc, sMod) {
                    sGoback +
                    taglist;
 
-    let sPage = createPage(sTemplate, sContent, {sDescription: oSrc.description, sTitle: sTitle, oImage: aImg, isComments: true, isLikes: true, pageLink: SiteURL+"/tables/"+sRandom+".html"});
+    let sPage = createPage(sTemplate, sContent, {sDescription: oSrc.description, sTitle: sTitle, oImage: aImg, isComments: true, isLikes: true, pageLink: SiteURL+"/archive/tables/"+sRandom+".html"});
 
     savePage(sPage, sPathToTablestOutput + "/"+sRandom+".html");
 }
@@ -455,7 +455,7 @@ function createTexts(sSourcePath, sOutputPath) {
         const content = $.html()+taglist;
 
 		fileName = fileName.replace(/\s+/g, "_");
-        const page = createPage(sTemplate, content, {sDescription: sDescription, sTitle: title, oImage: aImg, isComments: true, isLikes: true, pageLink: SiteURL+"/articles/"+fileName});
+        const page = createPage(sTemplate, content, {sDescription: sDescription, sTitle: title, oImage: aImg, isComments: true, isLikes: true, pageLink: SiteURL+"/archive/articles/"+fileName});
         savePage(page, sOutputPath + "/" + fileName, "sinc");
       //}
     }
@@ -576,7 +576,7 @@ function createInnerContent(sSourcePath, sOutputPath, oParams){
         const content = $.html()+taglist;
 
 		fileName = fileName.replace(/\s+/g, "_");
-        const page = createPage(sTemplate, content, {sTitle: title, oImage: aImg, isComments: true, isLikes: true, pageLink: SiteURL+"/articles/"+fileName});
+        const page = createPage(sTemplate, content, {sTitle: title, oImage: aImg, isComments: true, isLikes: true, pageLink: SiteURL+"/archive/articles/"+fileName});
         savePage(page, sOutputPath + "/" + fileName, "sinc");
       //}
     }
@@ -632,7 +632,7 @@ function createOthers(sSourcePath, sOutputPath) {
       //console.dir(content);
 
 		fileName = fileName.replace(/\s+/g, "_");
-      const page = createPage(sTemplate, content, {sTitle: title, oImage: aImg, isComments: true, isLikes: true, pageLink: SiteURL+"/other/"+fileName});
+      const page = createPage(sTemplate, content, {sTitle: title, oImage: aImg, isComments: true, isLikes: true, pageLink: SiteURL+"/archive/other/"+fileName});
       savePage(page, sOutputPath + "/" + fileName, "sinc");
     }
   });

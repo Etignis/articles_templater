@@ -3,24 +3,5 @@ node/node_modules*
 node/package-lock.json
 node/script.js
 node/config.js
-css/
-img/
-other/
-tables/
-text/
-articles/
 !source/other/
 
-other.html
-articles.html
-tables.html
-index.html
-index.html
-index.html
-index.html
-index.html
-index.html
-index.html
-index.html
-index.html
-index.html

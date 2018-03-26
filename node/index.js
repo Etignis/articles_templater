@@ -24,6 +24,7 @@ const htmlExt = '.html';
 const mdExt = '.md';
 const sPathToOutput = '../';
 const SiteURL = "https://tentaculus.ru";
+const SiteURL2 = "https://dr-tentaculus.github.io/";
 const SiteName = "Dr.Tentaculus";
 const sTemplate = getTemplate();
 
@@ -192,6 +193,7 @@ function createPage(sTemplate, sContent, oParams) { // sTitle, oImage, isComment
     if(oParams.pageLink){
       oTemplate("link[rel=canonical]").attr('href', oParams.pageLink);
       oTemplate("link[rel=alternate]").attr('href', oParams.pageLink);
+      oTemplate("meta[property='og:url']").attr('content', oParams.pageLink);
     }
     if(oParams.oImage){
       if(typeof oParams.oImage == "string") {
@@ -214,10 +216,11 @@ function createPage(sTemplate, sContent, oParams) { // sTitle, oImage, isComment
 // check & add OG images
 function insertMetaImage($, sPath, nIndex){
   if($("meta[property='og:image']").eq(nIndex).length > 0) {
-    $("meta[property='og:image']").eq(nIndex).attr('content', sPath);
+    $("meta[property='og:image']").eq(nIndex).attr('content', SiteURL+"/"+sPath);
   } else {
-    $("meta[property='og:type']").before('<meta property="og:image" content="'+sPath+'">\n');
+    $("meta[property='og:type']").before('<meta property="og:image" content="'+SiteURL+"/"+sPath+'">\n');
   }
+    $("meta[property='og:type']").before('<meta property="og:image" content="'+SiteURL2+"/"+sPath+'">\n');
 }
 
 // save page file

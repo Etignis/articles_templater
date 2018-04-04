@@ -5,3 +5,9 @@ node/script.js
 node/config.js
 !source/other/
 
+node/session_name.session
+node/TeleChannels.txt
+python/__pycache__/settings.cpython-36.pyc
+python/session_name.session
+python/settings.py
+python/TeleChannels.txt

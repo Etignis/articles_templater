@@ -24,7 +24,7 @@ const htmlExt = '.html';
 const mdExt = '.md';
 const sPathToOutput = '../';
 const SiteURL = "https://tentaculus.ru";
-const SiteURL2 = "https://dr-tentaculus.github.io/";
+const SiteURL2 = "https://dr-tentaculus.github.io";
 const SiteName = "Dr.Tentaculus";
 const sTemplate = getTemplate();
 
@@ -160,7 +160,7 @@ function getOthersList(aSource, sImage) {
 function createPage(sTemplate, sContent, oParams) { // sTitle, oImage, isComments, isLikes
   var oTemplate = cheerio.load(sTemplate, {decodeEntities: false});
   if(oParams) {
-    const pageLink = (oParams.pageLink)?", pageUrl: \""+oParams.pageLink+"\"" : "";
+    const pageLink = (oParams.pageLink)?", pageUrl: \""+ SiteURL + oParams.pageLink+"\"" : "";
     const pageID = (oParams.pageLink)?", \""+oParams.pageLink+"\"" : "";
     const pageTitle = (oParams.sTitle)?", pageTitle: \""+SiteName+" - "+oParams.sTitle+"\"" : "";
     let pageImg = "";
@@ -191,9 +191,9 @@ function createPage(sTemplate, sContent, oParams) { // sTitle, oImage, isComment
       oTemplate("meta[property='og:description']").attr('content', sDescription);
     }
     if(oParams.pageLink){
-      oTemplate("link[rel=canonical]").attr('href', oParams.pageLink);
-      oTemplate("link[rel=alternate]").attr('href', oParams.pageLink);
-      oTemplate("meta[property='og:url']").attr('content', oParams.pageLink);
+      oTemplate("link[rel=canonical]").attr('href', SiteURL + oParams.pageLink);
+      oTemplate("link[rel=alternate]").attr('href', SiteURL2 + oParams.pageLink);
+      oTemplate("meta[property='og:url']").attr('content', SiteURL + oParams.pageLink);
     }
     if(oParams.oImage){
       if(typeof oParams.oImage == "string") {
@@ -344,7 +344,7 @@ function createTablePage(oSrc, sMod) {
                    sGoback +
                    taglist;
 
-    let sPage = createPage(sTemplate, sContent, {sDescription: oSrc.description, sTitle: sTitle, oImage: aImg, isComments: true, isLikes: true, pageLink: SiteURL+"/archive/tables/"+sRandom+".html"});
+    let sPage = createPage(sTemplate, sContent, {sDescription: oSrc.description, sTitle: sTitle, oImage: aImg, isComments: true, isLikes: true, pageLink: "/archive/tables/"+sRandom+".html"});
 
     savePage(sPage, sPathToTablestOutput + "/"+sRandom+".html");
 }
@@ -378,7 +378,7 @@ function createTableList() {
   const sGoback = "\n<p class='noRedString breadcrumps'>"+sGoToMain+sGoBackDelimiter+"<a href='/archive'>"+sArchiveTitle+"</a>"+sGoBackDelimiter+sTablesTitle+"</p>";
   const $Page = cheerio.load(sGlobalTablesList);
   $Page("h1").after(sGoback);
-  const sPage = createPage(sTemplate, $Page.html(), {sTitle: sTablesTitle, oImage: aImg, ifFilteScript: false});
+  const sPage = createPage(sTemplate, $Page.html(), {sTitle: sTablesTitle, oImage: aImg, ifFilteScript: false, pageLink: "/archive/tables/"});
   savePage(sPage, sPathToTablestOutput + "/index.html");
   //savePage(sPage, "../tables.html");
 }
@@ -458,7 +458,7 @@ function createTexts(sSourcePath, sOutputPath) {
         const content = $.html()+taglist;
 
 		fileName = fileName.replace(/\s+/g, "_");
-        const page = createPage(sTemplate, content, {sDescription: sDescription, sTitle: title, oImage: aImg, isComments: true, isLikes: true, pageLink: SiteURL+"/archive/articles/"+fileName});
+        const page = createPage(sTemplate, content, {sDescription: sDescription, sTitle: title, oImage: aImg, isComments: true, isLikes: true, pageLink: "/archive/articles/"+fileName});
         savePage(page, sOutputPath + "/" + fileName, "sinc");
       //}
     }
@@ -522,7 +522,7 @@ function createTextList(sSourcePath, sOutputPath) {
   const sGoback = "\n<p class='noRedString breadcrumps'>"+sGoToMain+sGoBackDelimiter+"<a href='/archive'>"+sArchiveTitle+"</a>"+sGoBackDelimiter+sArticlesTitle+"</p>";
   const $Page = cheerio.load(sGlobalTextsList);
   $Page("h1").after(sGoback);
-  const sPage = createPage(sTemplate, $Page.html(), {pageLink: "https:tentaculus.ru/archive/articles/", sTitle: sArticlesTitle, oImage: aImg, ifFilteScript: true});
+  const sPage = createPage(sTemplate, $Page.html(), {pageLink: "/archive/articles/", sTitle: sArticlesTitle, oImage: aImg, ifFilteScript: true});
   savePage(sPage, sPathToTextOutput + "/index.html");
   //savePage(sPage, "../articles.html");
 }
@@ -579,7 +579,7 @@ function createInnerContent(sSourcePath, sOutputPath, oParams){
         const content = $.html()+taglist;
 
 		fileName = fileName.replace(/\s+/g, "_");
-        const page = createPage(sTemplate, content, {sTitle: title, oImage: aImg, isComments: true, isLikes: true, pageLink: SiteURL+"/archive/articles/"+fileName});
+        const page = createPage(sTemplate, content, {sTitle: title, oImage: aImg, isComments: true, isLikes: true, pageLink: "/archive/articles/"+fileName});
         savePage(page, sOutputPath + "/" + fileName, "sinc");
       //}
     }
@@ -635,7 +635,7 @@ function createOthers(sSourcePath, sOutputPath) {
       //console.dir(content);
 
 		fileName = fileName.replace(/\s+/g, "_");
-      const page = createPage(sTemplate, content, {sTitle: title, oImage: aImg, isComments: true, isLikes: true, pageLink: SiteURL+"/archive/other/"+fileName});
+      const page = createPage(sTemplate, content, {sTitle: title, oImage: aImg, isComments: true, isLikes: true, pageLink: "/archive/other/"+fileName});
       savePage(page, sOutputPath + "/" + fileName, "sinc");
     }
   });
@@ -690,7 +690,7 @@ function createOtherList(sSourcePath, sOutputPath) {
   const sGoback = "\n<p class='noRedString breadcrumps'>"+sGoToMain+sGoBackDelimiter+"<a href='/archive'>"+sArchiveTitle+"</a>"+sGoBackDelimiter+sOthersTitle+"</p>";
   const $Page = cheerio.load(sGlobalOthersList);
   $Page("h1").after(sGoback);
-  const sPage = createPage(sTemplate, $Page.html(), {pageLink: "https:tentaculus.ru/archive/other",  sTitle: sOthersTitle, oImage:aImg, ifFilteScript: false});
+  const sPage = createPage(sTemplate, $Page.html(), {pageLink: "/archive/other",  sTitle: sOthersTitle, oImage:aImg, ifFilteScript: false});
   savePage(sPage, sOutputPath + "/index.html");
   //savePage(sPage, "../other.html");
 }
@@ -705,24 +705,43 @@ function createIndexPage() {
   const sStartContent = sGlobalTablesList + sGlobalTextsList + sGlobalOthersList;
   const sFinishContent = sStartContent.replace(/\bh2\b/gi, "h3").replace(/\bh1\b/gi, "h2");
 
-  const sPage = createPage(sTemplate, sHeader + sPrevText + sFinishContent, {pageLink: "https:tentaculus.ru/archive/",sTitle: "Архив", ifFilteScript: true});
+  const sPage = createPage(sTemplate, sHeader + sPrevText + sFinishContent, {pageLink: "/archive/",sTitle: "Архив", ifFilteScript: true});
   savePage(sPage, "../index.html");
   //savePage(sPage, "../../archive.html");
 }
 
-// table's list
-createTableList();
+function createAllPages() {	
+	// table's list
+	createTableList();
 
-// create text articles from source
-createTexts(sPathToTextSource, sPathToTextOutput);
+	// create text articles from source
+	createTexts(sPathToTextSource, sPathToTextOutput);
 
-// text's list
-createTextList(sPathToTextOutput, sPathToTextOutput);
+	// text's list
+	createTextList(sPathToTextOutput, sPathToTextOutput);
 
-// create other articles from source
-createOthers(sPathToOtherSource, sPathToOtherOutput);
-// other's list
-createOtherList(sPathToOtherOutput, sPathToOtherOutput);
+	// create other articles from source
+	createOthers(sPathToOtherSource, sPathToOtherOutput);
+	// other's list
+	createOtherList(sPathToOtherOutput, sPathToOtherOutput);
 
-// articles main page
-createIndexPage();
+	// articles main page
+	createIndexPage();
+}
+
+function getTelegramChats(){
+	console.log("\nStart Telegram grabber");
+	var spawn = require("child_process").spawn;
+	var pythonProcess = spawn('python',["../python/telegram.py"]);
+	
+	pythonProcess.stdout.on('data', function (data){
+		console.log(data.toString());
+		return false;
+	});
+}
+function createTelegramList(){
+	getTelegramChats();
+}
+
+createAllPages();
+//createTelegramList()

@@ -200,6 +200,13 @@ function linkify(text) {
 }
 function parceTeleFile(sData){
 	var aRet = [];
+	var oRet = {
+		"https://t.me/fatecore": "<b>Fate Core:</b> <a href='https://t.me/fatecore'>https://t.me/fatecore</a><br>Обсуждаем здесь Fate Core и другие ролевые игры (иногда). На отвлеченных темах не застреваем. Ведем себя прилично.",
+		"https://t.me/pathfinder_ru": "<b>Pathfinder:</b> <a href='https://t.me/pathfinder_ru'>https://t.me/pathfinder_ru</a><br> Канал посвященный обсуждению Pathfinder RPG и Pathfinder Society на русском языке.",
+		"https://t.me/PoweredByTheApocalypse": "<b>PbtA:</b> <a href='https://t.me/PoweredByTheApocalypse'>https://t.me/PoweredByTheApocalypse</a><br> Чат для обсуждения игр на движке ПбтА. Вопрос-ответ, новые хаки, советы, обсуждения.",
+		"https://t.me/makerpg": "<b>Лаборатория НРИ:</b> <a href='https://t.me/makerpg '>https://t.me/makerpg </a><br>Настольные ролевые игры на русском языке. Обсуждение, ответы на вопросы, создание, тестирование.",
+		"https://t.me/livingroomstudio": "<b>LivingRoomStudio:</b> <a href='https://t.me/livingroomstudio'>https://t.me/livingroomstudio</a><br> Данный чат создан командой LivingRoomStudio (LRS) и посвящён обсуждению её творчества и настольной ролевой игре (НРИ) Dungeons&Dragons."
+	};
 	var aMessages = sData.split("===");
 	aMessages.forEach(function(el){
 		if(el.indexOf("t.me/")>-1) {
@@ -213,7 +220,10 @@ function parceTeleFile(sData){
 				}
 				sName = setName(sName);
 				const sOther = (oParams && oParams[4] || "").trim();
-				aRet.push((sName + "<a href='"+sLink+"'>"+sLink+"</a> "+sOther).replace(/\|+/g, "<br>").replace(/@([\w\d_-]+)/g, "<a href='https://telegram.me/$1'>telegram.me/$1</a>"));
+				var sText = (sName + "<a href='"+sLink+"'>"+sLink+"</a> "+sOther).replace(/\|+/g, "<br>").replace(/@([\w\d_-]+)/g, "<a href='https://telegram.me/$1'>telegram.me/$1</a>");
+				//aRet.push(sText);
+				if(!oRet.hasOwnProperty(sLink))
+					oRet[sLink] = sText;
 			} else {
 				if(el.indexOf("t.me/")>-1) {
 					aRet.push(linkify(el).replace(/\|+/g, "<br>").replace(/@([\w\d_-]+)/g, "<a href='https://telegram.me/$1'>telegram.me/$1</a>"));
@@ -221,7 +231,8 @@ function parceTeleFile(sData){
 			}
 		}
 	});
-	return aRet;
+	
+	return {a: aRet, o: oRet};
 }
 function getTelegramChats(){
 	console.log("\nStart Telegram grabber");
@@ -231,21 +242,39 @@ function getTelegramChats(){
 	pythonProcess.stdout.on('data', function (data){
 		//console.log(data.toString());
 		console.log("Python finished");
-		//readTeleFile();
-		//getTelegramChats();
-		var aList = parceTeleFile(readTeleFile()).map(function(el) {return "<p class='noRedString'>"+el+"</p>"});
+		/**/
+		//var aList = parceTeleFile(readTeleFile()).map(function(el) {return "<p class='noRedString'>"+el+"</p>"});
+		var oChats = parceTeleFile(readTeleFile());
+		//console.dir(oChats.o);
+		/**/
+		var aList = [];
+		for (var i in oChats.o) {
+			// console.log(oChats.o);
+			// console.log(oChats.o.i);
+			// console.log();
+			aList.push("<p class='noRedString'>"+oChats.o[i]+"</p>");
+		}
+		var aList = aList.concat(oChats.a.map(function(el) {return "<p class='noRedString'>"+el+"</p>"}));
 		var sImg = '<img src="_img/telegram_300.jpg" srcset="_img/telegram_500.jpg 500w, _img/telegram_800.jpg 800w" style="width: 100%" alt="">';
 		var aImg = [
 			"_img/telegram_800.jpg",
 			"_img/telegram_500.jpg",
 			"_img/telegram_300.jpg"
 		];
-		var sTitle = "Каналы и чаты телеграма ролевой направленности";
+		var sTitle = "Каналы и чаты телеграма, где есть ролевики";
 		var sContent = "<h1>"+sTitle+"</h1><p class='noRedString'>"+sImg+"</p>"+aList.join("<hr>");
 		var sDescription = "Список каналов и чатов телеграма ролевой направленности";
 		let sPage = createPage(sTemplate, sContent, {sDescription: sDescription, sTitle: sTitle, oImage: aImg});
 		savePage(sPage, "../../telegram.html");
+		/**/
 		return false;
+	});
+	
+	pythonProcess.stderr.on('data', (data) => {
+	  console.log(`stderr: ${data}`);
+	});
+	pythonProcess.on('close', (code) => {
+	  console.log(`child process exited with code ${code}`);
 	});
 }
 function createTelegramList(){

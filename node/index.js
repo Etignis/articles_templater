@@ -285,6 +285,7 @@ function createTable(sTable, sMod, sTitle) {
       } else{
         nIndex++;
       }
+			el = el.replace(/\s*{{[\w\d]+}}\s*/, ""); // replase doubles
       return "<td>"+sCount + "</td><td> "  + el.trim() + "</td>";
     })
     const sD = (aD.indexOf(nIndex-1)>=0)? "d"+(nIndex-1): "№";

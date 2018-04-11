@@ -5,6 +5,7 @@ const argv = require('yargs').argv;
 const cheerio = require('cheerio');
 const path = require('path');
 const showdown  = require('showdown');
+const request = require('request');
 const MD2HTMLconverter = new showdown.Converter();
 MD2HTMLconverter.setOption('strikethrough', true); // ~~ stroken ~~
 MD2HTMLconverter.setOption('customizedHeaderId', true); // ## Sample header {real-id}     will use real-id as id
@@ -198,20 +199,95 @@ function linkify(text) {
     
 	return text;
 }
+
+function getDataFromTelegram(sLink){
+	sLink = "https://"+sLink;
+	//console.log("Start: "+sLink);
+	var p1 = new Promise((resolve, reject) => { 
+		request(sLink, function (err, res, body) {
+			if (err) { 
+				console.dir("error while 'request'" + err);
+				return reject("");
+			}
+			try{
+				const $ = cheerio.load(body.toString(), {decodeEntities: false});
+				const sTitle = $(".tgme_page_title").eq(0).text().trim().replace(/[\n\r]+/ig, "");
+				const sInfo = $(".tgme_page_description").eq(0).html() || "";
+				const sA = $(".tgme_action_button_new").eq(0).attr("href");
+				let sRet = "<b>"+sTitle+":</b> " + sLink + "<br>" + sInfo;
+				//sRet = sRet.replace(/([a-zа-яё])\.([а-яё])/ig, "$1. $2");
+				sRet = sRet.replace(/(bit\.ly\/[\w\d]+)/, " http://$1 ");
+				//sRet = sRet.replace(/@([\w\d]+)/ig, "https://t.me/$1");
+				//sRet = sRet.replace(/tg:\/\/join\?invite=([\w\d]+)/ig, "https://t.me/joinchat/$1");
+				sRet = sRet.replace(/(https?:\/\/[\w\d\/\._-]+)/ig, " <a href='$1'>$1</a> ");
+				//console.log(sRet);
+				var o = {
+					"link": sLink,
+					"text": sRet
+				};
+				//o[sLink] = sRet;
+				return resolve(o);
+			} catch (err) {
+				console.dir("[ERROR]: "+err);
+				return reject("");
+			}
+			
+		});
+		//setTimeout(resolve, 1000, "one"); 
+	}); 
+	
+	return p1;
+}
 function parceTeleFile(sData){
-	var aRet = [];
+	var aTeleLinks = [
+		"https://t.me/fatecore",
+		"https://t.me/pathfinder_ru",
+		"https://t.me/PoweredByTheApocalypse",
+		"https://t.me/Unknown_Armies",
+		"https://t.me/makerpg",
+		"https://t.me/livingroomstudio"
+		];
+	/*/
 	var oRet = {
 		"https://t.me/fatecore": "<b>Fate Core:</b> <a href='https://t.me/fatecore'>https://t.me/fatecore</a><br>Обсуждаем здесь Fate Core и другие ролевые игры (иногда). На отвлеченных темах не застреваем. Ведем себя прилично.",
 		"https://t.me/pathfinder_ru": "<b>Pathfinder:</b> <a href='https://t.me/pathfinder_ru'>https://t.me/pathfinder_ru</a><br> Канал посвященный обсуждению Pathfinder RPG и Pathfinder Society на русском языке.",
 		"https://t.me/PoweredByTheApocalypse": "<b>PbtA:</b> <a href='https://t.me/PoweredByTheApocalypse'>https://t.me/PoweredByTheApocalypse</a><br> Чат для обсуждения игр на движке ПбтА. Вопрос-ответ, новые хаки, советы, обсуждения.",
+		"https://t.me/Unknown_Armies": "<b>Unknown Armies:</b> <a href='https://t.me/Unknown_Armies'>https://t.me/Unknown_Armies</a><br> Оккультный андеграунд, идеи и помощь поклонникам Неизвестных Армий.",
 		"https://t.me/makerpg": "<b>Лаборатория НРИ:</b> <a href='https://t.me/makerpg '>https://t.me/makerpg </a><br>Настольные ролевые игры на русском языке. Обсуждение, ответы на вопросы, создание, тестирование.",
 		"https://t.me/livingroomstudio": "<b>LivingRoomStudio:</b> <a href='https://t.me/livingroomstudio'>https://t.me/livingroomstudio</a><br> Данный чат создан командой LivingRoomStudio (LRS) и посвящён обсуждению её творчества и настольной ролевой игре (НРИ) Dungeons&Dragons."
 	};
+	/**/
+
 	var aMessages = sData.split("===");
+	var aLinks = [],
+			oLinks = {"t.me/livingroomstudio": ""};
 	aMessages.forEach(function(el){
+		/*/
+			tg://join?invite=AHXLIkLPWzI3tiVXDelbLQ  -> https://t.me/joinchat/AHXLIkLPWzI3tiVXDelbLQ
+			https://t.me/joinchat/AHXLIkLPWzI3tiVXDelbLQ
+			https://t.me/fatecore
+			@Unknown_Armies
+			t.me/gde_tusa4_spb
+		/**/
+		el = el.replace(/tg:\/\/join\?invite=([\w\d]+)/ig, "https://t.me/joinchat/$1");
+		el = el.replace(/@([\w\d]+)/ig, "https://t.me/$1");
+		
+		var aExtractedLinks = el.match(/t\.me\/[^\s\t\n\r]+/gi);
+		if(aExtractedLinks && aExtractedLinks.length>0) {
+			aExtractedLinks.forEach(function(item) {
+				if(item.indexOf("GoblinQueen") == -1) {
+					oLinks[item] = "";
+				}
+			});
+		}
+		
+		
+		
+		
+		/*/
 		if(el.indexOf("t.me/")>-1) {
 			el = el.replace(/[\r\n]+/g, "|").replace("<MessageMediaWebPage> ", "");
-		const oParams = /(([\wА-Яа-яЁё\s]+):?)?[\s|]*(https:\/\/t.me\/[^|\s]+)([\r\n\t\s]*.+)?/.exec(el);
+			const oParams = /(([\wА-Яа-яЁё\s]+):?)?[\s|]*(https:\/\/t.me\/[^|\s]+)([\r\n\t\s]*.+)?/.exec(el);
 			let sName = (oParams && oParams[2] || "").trim();
 			const sLink = (oParams && oParams[3] || "").trim();
 			if(sLink) {
@@ -229,10 +305,62 @@ function parceTeleFile(sData){
 					aRet.push(linkify(el).replace(/\|+/g, "<br>").replace(/@([\w\d_-]+)/g, "<a href='https://telegram.me/$1'>telegram.me/$1</a>"));
 				}
 			}
-		}
+		/**/
 	});
-	
-	return {a: aRet, o: oRet};
+	//console.dir(oLinks);
+	//aDefer.push(getDataFromTelegram("t.me/joinchat/AHXLIkLPWzI3tiVXDelbLQ"));
+	var aDefer=[];
+	/**/
+	for (var i in oLinks) {
+		aDefer.push(getDataFromTelegram(i));
+	}
+	/**/
+	Promise.all(aDefer).then(function(aChats){
+		var aRet = [];
+		var oChats = {};
+		aChats.forEach(function(el){
+			//console.dir(el);
+			oChats[el.link] = el.text;			
+		});
+		//console.dir(oChats);
+		/**/
+		var aRet = [];
+		aTeleLinks.forEach(function(el){
+			//console.log(el);
+			if(oChats[el]){
+				//console.log(el + " === " + aChats[el])
+				aRet.push(oChats[el]);
+				delete oChats[el];
+			}
+		});
+		for (var i in oChats) {
+			aRet.push(oChats[i]);
+		}
+		//console.dir(ret);
+		makePage(aRet)
+		/**/
+	});
+	//return {a: aRet, o: oRet};
+}
+function makePage(aContent){
+	var d=new Date();
+	var sDate = d.getDate() + "." + (d.getMonth() + 1) + "." + d.getFullYear() + " " + d.getHours() + ":" + d.getMinutes();
+	var sNum = "<p class='noRedString'><small> Всего найдено чатов: " + aContent.length + " | Обновлено "+sDate+"</small></p>";
+	//console.log(sNum);
+	var aList = aContent.map(function(el){
+		return "<p class='noRedString'>"+el+"</p>";
+	});
+	var sImg = '<img src="_img/telegram_300.jpg" srcset="_img/telegram_500.jpg 500w, _img/telegram_800.jpg 800w" style="width: 100%" alt="">';
+	var aImg = [
+		"_img/telegram_800.jpg",
+		"_img/telegram_500.jpg",
+		"_img/telegram_300.jpg"
+	];
+	var sTitle = "Каналы и чаты телеграма, где есть ролевики";
+	var sContent = "<h1>"+sTitle+"</h1><p class='noRedString'>"+sImg+"</p>"+sNum+aList.join("<hr>");
+	var sDescription = "Список каналов и чатов телеграма ролевой направленности";
+	let sPage = createPage(sTemplate, sContent, {sDescription: sDescription, sTitle: sTitle, oImage: aImg});
+	savePage(sPage, "../../telegram.html");
 }
 function getTelegramChats(){
 	console.log("\nStart Telegram grabber");
@@ -246,7 +374,7 @@ function getTelegramChats(){
 		//var aList = parceTeleFile(readTeleFile()).map(function(el) {return "<p class='noRedString'>"+el+"</p>"});
 		var oChats = parceTeleFile(readTeleFile());
 		//console.dir(oChats.o);
-		/**/
+		/*/
 		var aList = [];
 		for (var i in oChats.o) {
 			// console.log(oChats.o);
@@ -278,6 +406,10 @@ function getTelegramChats(){
 	});
 }
 function createTelegramList(){
+	process.on('unhandledRejection', error => {
+		// Will print "unhandledRejection err is not defined"
+		console.log('unhandledRejection', error.message);
+	});
 	getTelegramChats();
 }
 

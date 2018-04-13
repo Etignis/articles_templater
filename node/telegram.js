@@ -213,13 +213,14 @@ function getDataFromTelegram(sLink){
 				const $ = cheerio.load(body.toString(), {decodeEntities: false});
 				const sTitle = $(".tgme_page_title").eq(0).text().trim().replace(/[\n\r]+/ig, "");
 				const sInfo = $(".tgme_page_description").eq(0).html() || "";
-				const sA = $(".tgme_action_button_new").eq(0).attr("href");
+				//let  sA = $(".tgme_action_button_new").eq(0).attr("href");
+					//sLink = sLink.replace(/(https?:\/\/[\w\d\/\._-]+)/ig, " <a href='$1'>$1</a> ");
 				let sRet = "<b>"+sTitle+":</b> " + sLink + "<br>" + sInfo;
 				//sRet = sRet.replace(/([a-zа-яё])\.([а-яё])/ig, "$1. $2");
 				sRet = sRet.replace(/(bit\.ly\/[\w\d]+)/, " http://$1 ");
 				//sRet = sRet.replace(/@([\w\d]+)/ig, "https://t.me/$1");
 				//sRet = sRet.replace(/tg:\/\/join\?invite=([\w\d]+)/ig, "https://t.me/joinchat/$1");
-				sRet = sRet.replace(/(https?:\/\/[\w\d\/\._-]+)/ig, " <a href='$1'>$1</a> ");
+				sRet = sRet.replace(/(<a href="|')?(https?:\/\/[\w\d\/\._-]+)([\w\d_@\.\/\sа-яё-]+<\/a>)?/ig, " <a href='$2'>$2</a> ");
 				//console.log(sRet);
 				var o = {
 					"link": sLink,

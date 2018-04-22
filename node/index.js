@@ -261,6 +261,7 @@ function createTable(sTable, sMod, sTitle) {
     aTableRows = aTableRows.map(function(el){
       var aCount = el.match(/{{(\d+)}}/)
       var sCount = nIndex;
+			el = el.replace(/\s*\[\[[:\w\d_-]+\]\]\s*/ig, "");
       if(aCount && aCount[1]){
         var nCount = Number(aCount[1]);
         sCount += "-"+(Number(nIndex)-1+Number(nCount));
@@ -277,6 +278,7 @@ function createTable(sTable, sMod, sTitle) {
     aTableRows = aTableRows.map(function(el){
       var aCount = el.match(/{{(\d+)}}/)
       var sCount = nIndex;
+			el = el.replace(/\s*\[\[[:\w\d_-]+\]\]\s*/ig, "");
       if(aCount && aCount[1]){
         var nCount = Number(aCount[1]);
         sCount += "-"+(Number(nIndex)-1+Number(nCount));

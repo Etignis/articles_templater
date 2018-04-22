@@ -349,7 +349,7 @@ function makePage(aContent){
 	var sNum = "<p class='noRedString'><small> Всего найдено чатов: " + aContent.length + " | Обновлено "+sDate+"</small></p>";
 	//console.log(sNum);
 	var aList = aContent.map(function(el){
-		return "<p class='noRedString'>"+el+"</p>";
+		return "<p class='noRedString'>"+el.replace(/t\.me/ig,"t-do.ru")+"</p>";
 	});
 	var sImg = '<img src="_img/telegram_300.jpg" srcset="_img/telegram_500.jpg 500w, _img/telegram_800.jpg 800w" style="width: 100%" alt="">';
 	var aImg = [

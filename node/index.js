@@ -313,10 +313,29 @@ function createTablePage(oSrc, sMod) {
     var aSrc = oSrc.src;
     const taglist = oSrc.tags? getTaglist(oSrc.tags) : null;
 
+		let sUnion = ""; 
+		let aSourceTables=[];
+		let sSourceTablesTitle="";
     aSrc.forEach(function(el){
-      var sTable = el.l;
-      var sTableTitle = el.title? el.title : sResultTableTitle;
-      aTables.push(createTable(sTable, "numericTable", sTableTitle));
+			if(el.hideFromArticle != true) {
+				if(el.union) {
+					if(el.union != sUnion) {
+						sUnion = "";
+					}
+					if(el.union == sUnion || sUnion == "") {
+						aSourceTables.push(el.l);
+						sSourceTablesTitle = el.title || "";
+					}
+					sUnion = el.union;
+				} else {
+					if(aSourceTables.length > 0) {						
+						aTables.push(createTable(aSourceTables.join(";"), "numericTable", sSourceTablesTitle));		
+					}
+					let sTable = el.l;
+					let sTableTitle = el.title? el.title : sResultTableTitle;
+					aTables.push(createTable(sTable, "numericTable", sTableTitle));					
+				}
+			}
     });
 
     var sLink = (sURL)? "<a href='"+sURL+"'>"+sSource+"</a>": sSource;

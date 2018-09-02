@@ -145,7 +145,7 @@ function getOthersList(aSource, sImage) {
     var sDescription = aSource[j].description? "\n<br><span class='desc'>"+aSource[j].description+"</span>" : "";
     var sTags =aSource[j].taglist? getTaglist(aSource[j].taglist) : "";
 
-    aRows.push("<li><a href='archive/other/"+sName+"'>"+sTitle+"</a>"+sDescription+sTags+"</li>\n");
+    aRows.push("<li><a href='archive/other/"+sName+"'>"+sTitle+sPubDate+"</a>"+sDescription+sTags+"</li>\n");
 
   }
 
@@ -676,7 +676,7 @@ function createOtherList(sSourcePath, sOutputPath) {
       const fileTitle = $('h1').text();
       const description = $('.description').eq(0)? $('.description').eq(0).html() : (($("p").length>0)? $("p").eq(0).html() : "");
       const taglist = $('.hashtags').eq(0)? $('.hashtags').eq(0).text() : "";
-      let dateString = $('.date').eq(0)? $('.date').eq(0).text() : "";
+      let dateString = ($('.date').eq(0) && $('.date').eq(0).find("time"))? $('.date').eq(0).find("time").text() : "";
       if(dateString) {
         const aDate = dateString.split(".");
         const sDay = aDate[0];

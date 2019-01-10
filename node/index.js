@@ -469,7 +469,7 @@ function createTexts(sSourcePath, sOutputPath) {
         const content = $.html()+taglist;
 
 				fileName = fileName.replace(/\s+/g, "_");
-        const page = createPage(sTemplate, content, {sDescription: sDescription, sTitle: title, oImage: aImg, isComments: true, isLikes: true, pageLink: "/archive/articles/"+fileName});
+        const page = createPage(sTemplate, content, {/*sDescription: sDescription, */sTitle: title, oImage: aImg, isComments: true, isLikes: true, pageLink: "/archive/articles/"+fileName});
         savePage(page, sOutputPath + "/" + fileName, "sinc");
       //}
     }

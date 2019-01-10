@@ -24,6 +24,7 @@ const htmlExt = '.html';
 const mdExt = '.md';
 const sPathToOutput = '../';
 const SiteURL = "https://tentaculus.ru";
+const SiteURL2 = "https://dr-tentaculus.github.io";
 const SiteName = "Dr.Tentaculus";
 const sTemplate = getTemplate();
 
@@ -141,7 +142,7 @@ function getOthersList(aSource, sImage) {
     var sDescription = aSource[j].description? "\n<br><span class='desc'>"+aSource[j].description+"</span>" : "";
     var sTags =aSource[j].taglist? getTaglist(aSource[j].taglist) : "";
 
-    aRows.push("<li><a href='archive/other/"+sName+"'>"+sTitle+"</a>"+sDescription+sTags+"</li>\n");
+    aRows.push("<li><a href='archive/other/"+sName+"'>"+sTitle+sPubDate+"</a>"+sDescription+sTags+"</li>\n");
 
   }
 
@@ -156,7 +157,7 @@ function getOthersList(aSource, sImage) {
 function createPage(sTemplate, sContent, oParams) { // sTitle, oImage, isComments, isLikes
   var oTemplate = cheerio.load(sTemplate, {decodeEntities: false});
   if(oParams) {
-    const pageLink = (oParams.pageLink)?", pageUrl: \""+oParams.pageLink+"\"" : "";
+    const pageLink = (oParams.pageLink)?", pageUrl: \""+ SiteURL + oParams.pageLink+"\"" : "";
     const pageID = (oParams.pageLink)?", \""+oParams.pageLink+"\"" : "";
     const pageTitle = (oParams.sTitle)?", pageTitle: \""+SiteName+" - "+oParams.sTitle+"\"" : "";
     let pageImg = "";
@@ -179,6 +180,18 @@ function createPage(sTemplate, sContent, oParams) { // sTitle, oImage, isComment
       oTemplate("meta[property='og:title']").attr('content', oParams.sTitle);
       oTemplate("meta[property='og:description']").attr('content', oParams.sTitle);
     }
+    if(oParams.sDescription) {
+        let sDescription = oParams.sDescription.replace(/"/g, "'");  
+        sDescription = sDescription.replace(/[\r\n]+/g, "").trim(); 
+      //console.log("  - descript");
+      oTemplate("meta[name=description]").attr('content', sDescription);
+      oTemplate("meta[property='og:description']").attr('content', sDescription);
+    }
+    if(oParams.pageLink){
+      oTemplate("link[rel=canonical]").attr('href', SiteURL + oParams.pageLink);
+      oTemplate("link[rel=alternate]").attr('href', SiteURL2 + oParams.pageLink);
+      oTemplate("meta[property='og:url']").attr('content', SiteURL + oParams.pageLink);
+    }
     if(oParams.oImage){
       if(typeof oParams.oImage == "string") {
         oTemplate("meta[property='og:image']").attr('content', oParams.sImage);
@@ -200,10 +213,11 @@ function createPage(sTemplate, sContent, oParams) { // sTitle, oImage, isComment
 // check & add OG images
 function insertMetaImage($, sPath, nIndex){
   if($("meta[property='og:image']").eq(nIndex).length > 0) {
-    $("meta[property='og:image']").eq(nIndex).attr('content', sPath);
+    $("meta[property='og:image']").eq(nIndex).attr('content', SiteURL+"/"+sPath);
   } else {
-    $("meta[property='og:type']").before('<meta property="og:image" content="'+sPath+'">\n');
+    $("meta[property='og:type']").before('<meta property="og:image" content="'+SiteURL+"/"+sPath+'">\n');
   }
+    $("meta[property='og:type']").before('<meta property="og:image" content="'+SiteURL2+"/"+sPath+'">\n');
 }
 
 // save page file
@@ -244,6 +258,7 @@ function createTable(sTable, sMod, sTitle) {
     aTableRows = aTableRows.map(function(el){
       var aCount = el.match(/{{(\d+)}}/)
       var sCount = nIndex;
+			el = el.replace(/\s*\[\[[:\w\d_-]+\]\]\s*/ig, "");
       if(aCount && aCount[1]){
         var nCount = Number(aCount[1]);
         sCount += "-"+(Number(nIndex)-1+Number(nCount));
@@ -260,6 +275,7 @@ function createTable(sTable, sMod, sTitle) {
     aTableRows = aTableRows.map(function(el){
       var aCount = el.match(/{{(\d+)}}/)
       var sCount = nIndex;
+			el = el.replace(/\s*\[\[[:\w\d_-]+\]\]\s*/ig, "");
       if(aCount && aCount[1]){
         var nCount = Number(aCount[1]);
         sCount += "-"+(Number(nIndex)-1+Number(nCount));
@@ -268,6 +284,7 @@ function createTable(sTable, sMod, sTitle) {
       } else{
         nIndex++;
       }
+			el = el.replace(/\s*{{[\w\d]+}}\s*/, ""); // replase doubles
       return "<td>"+sCount + "</td><td> "  + el.trim() + "</td>";
     })
     const sD = (aD.indexOf(nIndex-1)>=0)? "d"+(nIndex-1): "№";
@@ -293,10 +310,29 @@ function createTablePage(oSrc, sMod) {
     var aSrc = oSrc.src;
     const taglist = oSrc.tags? getTaglist(oSrc.tags) : null;
 
+		let sUnion = ""; 
+		let aSourceTables=[];
+		let sSourceTablesTitle="";
     aSrc.forEach(function(el){
-      var sTable = el.l;
-      var sTableTitle = el.title? el.title : sResultTableTitle;
-      aTables.push(createTable(sTable, "numericTable", sTableTitle));
+			if(el.hideFromArticle != true) {
+				if(el.union) {
+					if(el.union != sUnion) {
+						sUnion = "";
+					}
+					if(el.union == sUnion || sUnion == "") {
+						aSourceTables.push(el.l);
+						sSourceTablesTitle = el.title || "";
+					}
+					sUnion = el.union;
+				} else {
+					if(aSourceTables.length > 0) {						
+						aTables.push(createTable(aSourceTables.join(";"), "numericTable", sSourceTablesTitle));		
+					}
+					let sTable = el.l;
+					let sTableTitle = el.title? el.title : sResultTableTitle;
+					aTables.push(createTable(sTable, "numericTable", sTableTitle));					
+				}
+			}
     });
 
     var sLink = (sURL)? "<a href='"+sURL+"'>"+sSource+"</a>": sSource;
@@ -327,7 +363,7 @@ function createTablePage(oSrc, sMod) {
                    sGoback +
                    taglist;
 
-    let sPage = createPage(sTemplate, sContent, {sTitle: sTitle, oImage: aImg, isComments: true, isLikes: true, pageLink: SiteURL+"/archive/tables/"+sRandom+".html"});
+    let sPage = createPage(sTemplate, sContent, {sDescription: oSrc.description, sTitle: sTitle, oImage: aImg, isComments: true, isLikes: true, pageLink: "/archive/tables/"+sRandom+".html"});
 
     savePage(sPage, sPathToTablestOutput + "/"+sRandom+".html");
 }
@@ -361,7 +397,7 @@ function createTableList() {
   const sGoback = "\n<p class='noRedString breadcrumps'>"+sGoToMain+sGoBackDelimiter+"<a href='/archive'>"+sArchiveTitle+"</a>"+sGoBackDelimiter+sTablesTitle+"</p>";
   const $Page = cheerio.load(sGlobalTablesList);
   $Page("h1").after(sGoback);
-  const sPage = createPage(sTemplate, $Page.html(), {sTitle: sTablesTitle, oImage: aImg, ifFilteScript: false});
+  const sPage = createPage(sTemplate, $Page.html(), {sTitle: sTablesTitle, oImage: aImg, ifFilteScript: false, pageLink: "/archive/tables/"});
   savePage(sPage, sPathToTablestOutput + "/index.html");
   //savePage(sPage, "../tables.html");
 }
@@ -371,7 +407,7 @@ function createTexts(sSourcePath, sOutputPath) {
   console.log("Render text's articles");
   fs.readdirSync(sSourcePath).forEach(file => {
     if (path.extname(file) === htmlExt || path.extname(file) === mdExt) {
-      const fileName = path.basename(file).split(".")[0] + ".html";
+      let fileName = path.basename(file).split(".")[0] + ".html";
       const fileContent = fs.readFileSync(path.join(sSourcePath, file));
       let sourceText = fileContent.toString();
       const bNotReady = /[\s\t\r\n]*notready!/.test(sourceText);
@@ -432,8 +468,8 @@ function createTexts(sSourcePath, sOutputPath) {
         $("p").last().after("<hr>"+sGoback);
         const content = $.html()+taglist;
 
-
-        const page = createPage(sTemplate, content, {sTitle: title, oImage: aImg, isComments: true, isLikes: true, pageLink: SiteURL+"/archive/articles/"+fileName});
+				fileName = fileName.replace(/\s+/g, "_");
+        const page = createPage(sTemplate, content, {sDescription: sDescription, sTitle: title, oImage: aImg, isComments: true, isLikes: true, pageLink: "/archive/articles/"+fileName});
         savePage(page, sOutputPath + "/" + fileName, "sinc");
       //}
     }
@@ -446,7 +482,7 @@ function createTextList(sSourcePath, sOutputPath) {
   let result = [];
   fs.readdirSync(sSourcePath).forEach(file => {
     if (path.extname(file) === htmlExt && file != 'index.html') {
-      const fileName = path.basename(file);
+      let fileName = path.basename(file);
       const fileContent = fs.readFileSync(path.join(sSourcePath, file));
       const sBody = fileContent.toString();
       const $ = cheerio.load(sBody, {decodeEntities: false});
@@ -497,7 +533,8 @@ function createTextList(sSourcePath, sOutputPath) {
   const sGoback = "\n<p class='noRedString breadcrumps'>"+sGoToMain+sGoBackDelimiter+"<a href='/archive'>"+sArchiveTitle+"</a>"+sGoBackDelimiter+sArticlesTitle+"</p>";
   const $Page = cheerio.load(sGlobalTextsList);
   $Page("h1").after(sGoback);
-  const sPage = createPage(sTemplate, $Page.html(), {sTitle: sArticlesTitle, oImage: aImg, ifFilteScript: true});
+
+  const sPage = createPage(sTemplate, $Page.html(), {pageLink: "/archive/articles/", sTitle: sArticlesTitle, oImage: aImg, ifFilteScript: true});
   savePage(sPage, sPathToTextOutput + "/index.html");
   //savePage(sPage, "../articles.html");
 }
@@ -507,7 +544,7 @@ function createInnerContent(sSourcePath, sOutputPath, oParams){
   if(oParams && oParams.consoleStart) console.log(oParams.consoleStart);
   fs.readdirSync(sSourcePath).forEach(file => {
     if (path.extname(file) === htmlExt || path.extname(file) === mdExt) {
-      const fileName = path.basename(file).split(".")[0] + ".html";
+      let fileName = path.basename(file).split(".")[0] + ".html";
       const fileContent = fs.readFileSync(path.join(sSourcePath, file));
       let sourceText = fileContent.toString();
       const bNotReady = /^[\s\t\r\n]*notready!/.test(sourceText);
@@ -553,8 +590,9 @@ function createInnerContent(sSourcePath, sOutputPath, oParams){
         $("p").last().after("<hr>"+sGoback);
         const content = $.html()+taglist;
 
+				fileName = fileName.replace(/\s+/g, "_");
+        const page = createPage(sTemplate, content, {sTitle: title, oImage: aImg, isComments: true, isLikes: true, pageLink: "/archive/articles/"+fileName});
 
-        const page = createPage(sTemplate, content, {sTitle: title, oImage: aImg, isComments: true, isLikes: true, pageLink: SiteURL+"/archive/articles/"+fileName});
         savePage(page, sOutputPath + "/" + fileName, "sinc");
       //}
     }
@@ -566,7 +604,7 @@ function createOthers(sSourcePath, sOutputPath) {
   console.log("Render other's articles");
   fs.readdirSync(sSourcePath).forEach(file => {
     if (path.extname(file) === htmlExt || path.extname(file) === mdExt) {
-      const fileName = path.basename(file).split(".")[0] + ".html";
+      let fileName = path.basename(file).split(".")[0] + ".html";
       const fileContent = fs.readFileSync(path.join(sSourcePath, file));
       let sourceText = fileContent.toString();
       // md 2 html
@@ -609,7 +647,10 @@ function createOthers(sSourcePath, sOutputPath) {
       const content = $.html() + taglist;
       //console.dir(content);
 
-      const page = createPage(sTemplate, content, {sTitle: title, oImage: aImg, isComments: true, isLikes: true, pageLink: SiteURL+"/archive/other/"+fileName});
+
+	  	fileName = fileName.replace(/\s+/g, "_");
+      const page = createPage(sTemplate, content, {sTitle: title, oImage: aImg, isComments: true, isLikes: true, pageLink: "/archive/other/"+fileName});
+
       savePage(page, sOutputPath + "/" + fileName, "sinc");
     }
   });
@@ -621,14 +662,14 @@ function createOtherList(sSourcePath, sOutputPath) {
   let result = [];
   fs.readdirSync(sSourcePath).forEach(file => {
     if (path.extname(file) === htmlExt && file != 'index.html') {
-      const fileName = path.basename(file);
+      let fileName = path.basename(file);
       const fileContent = fs.readFileSync(path.join(sSourcePath, file));
       const sBody = fileContent.toString();
       const $ = cheerio.load(sBody, {decodeEntities: false});
       const fileTitle = $('h1').text();
       const description = $('.description').eq(0)? $('.description').eq(0).html() : (($("p").length>0)? $("p").eq(0).html() : "");
       const taglist = $('.hashtags').eq(0)? $('.hashtags').eq(0).text() : "";
-      let dateString = $('.date').eq(0)? $('.date').eq(0).text() : "";
+      let dateString = ($('.date').eq(0) && $('.date').eq(0).find("time"))? $('.date').eq(0).find("time").text() : "";
       if(dateString) {
         const aDate = dateString.split(".");
         const sDay = aDate[0];
@@ -664,7 +705,9 @@ function createOtherList(sSourcePath, sOutputPath) {
   const sGoback = "\n<p class='noRedString breadcrumps'>"+sGoToMain+sGoBackDelimiter+"<a href='/archive'>"+sArchiveTitle+"</a>"+sGoBackDelimiter+sOthersTitle+"</p>";
   const $Page = cheerio.load(sGlobalOthersList);
   $Page("h1").after(sGoback);
-  const sPage = createPage(sTemplate, $Page.html(), { sTitle: sOthersTitle, oImage:aImg, ifFilteScript: false});
+
+  const sPage = createPage(sTemplate, $Page.html(), {pageLink: "/archive/other",  sTitle: sOthersTitle, oImage:aImg, ifFilteScript: false});
+
   savePage(sPage, sOutputPath + "/index.html");
   //savePage(sPage, "../other.html");
 }
@@ -679,24 +722,45 @@ function createIndexPage() {
   const sStartContent = sGlobalTablesList + sGlobalTextsList + sGlobalOthersList;
   const sFinishContent = sStartContent.replace(/\bh2\b/gi, "h3").replace(/\bh1\b/gi, "h2");
 
-  const sPage = createPage(sTemplate, sHeader + sPrevText + sFinishContent, {ifFilteScript: true});
+
+  const sPage = createPage(sTemplate, sHeader + sPrevText + sFinishContent, {pageLink: "/archive/",sTitle: "Архив", ifFilteScript: true});
+
   savePage(sPage, "../index.html");
   //savePage(sPage, "../../archive.html");
 }
 
-// table's list
-createTableList();
+function createAllPages() {	
+	// table's list
+	createTableList();
 
-// create text articles from source
-createTexts(sPathToTextSource, sPathToTextOutput);
+	// create text articles from source
+	createTexts(sPathToTextSource, sPathToTextOutput);
 
-// text's list
-createTextList(sPathToTextOutput, sPathToTextOutput);
+	// text's list
+	createTextList(sPathToTextOutput, sPathToTextOutput);
 
-// create other articles from source
-createOthers(sPathToOtherSource, sPathToOtherOutput);
-// other's list
-createOtherList(sPathToOtherOutput, sPathToOtherOutput);
+	// create other articles from source
+	createOthers(sPathToOtherSource, sPathToOtherOutput);
+	// other's list
+	createOtherList(sPathToOtherOutput, sPathToOtherOutput);
 
-// articles main page
-createIndexPage();
+	// articles main page
+	createIndexPage();
+}
+
+function getTelegramChats(){
+	console.log("\nStart Telegram grabber");
+	var spawn = require("child_process").spawn;
+	var pythonProcess = spawn('python',["../python/telegram.py"]);
+	
+	pythonProcess.stdout.on('data', function (data){
+		console.log(data.toString());
+		return false;
+	});
+}
+function createTelegramList(){
+	getTelegramChats();
+}
+
+createAllPages();
+//createTelegramList()

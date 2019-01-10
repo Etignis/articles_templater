@@ -1,5 +1,3 @@
-hidetilldate!
-
 # Советы Мастеру
 ![](archive/img/articles/DM_tips_list.jpg)
 

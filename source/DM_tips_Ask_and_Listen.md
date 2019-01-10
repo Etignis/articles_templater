@@ -1,5 +1,3 @@
-hidetilldate!
-
 # Советы Мастеру: задавайте вопросы и слушайте
 
 ![](archive/img/articles/DM_tips_Ask_and_Listen.jpg)

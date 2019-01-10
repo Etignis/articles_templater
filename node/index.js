@@ -55,6 +55,9 @@ function getTemplate(){
   $("body").addClass("maxWidth880");
   $("#content").text("");
   $("#content").addClass('ephasizedPage');
+  
+  $("link [rel='canonical']").remove();
+  $("link [rel='alternate']").remove()
   //console.dir($.html());
   return $.html();
 }
@@ -169,10 +172,10 @@ function createPage(sTemplate, sContent, oParams) { // sTitle, oImage, isComment
       }
     }
     if(oParams.isLikes) {
-      sContent += '\n<p class="noRedString"><div id="vk_like"></div></p><script type="text/javascript">VK.Widgets.Like("vk_like", {type: "full"'+pageLink+pageTitle+pageImg+'}'+pageID+');</script>';
+      sContent += '\n<p class="noRedString"><div id="vk_like"></div></p><!--script type="text/javascript">VK.Widgets.Like("vk_like", {type: "full"'+pageLink+pageTitle+pageImg+'}'+pageID+');</script-->';
     }
     if(oParams.isComments) {
-      sContent += '\n<div id="vk_comments" style="position: relative"><span style="color: #bbb; position: absolute; left: .4em; z-index: -1">Если у вас не отображаются комментарии, значит либо запрещен доступ к сайту vk.com, либо стоит блокировщик всякого такого.</span></div></p><script type="text/javascript">VK.Widgets.Comments("vk_comments", {limit: 10, attach: "*"'+pageLink+'}'+pageID+');</script>';
+      sContent += '\n<div id="vk_comments" style="position: relative; min-height: 2rem;"><span style="color: #bbb; position: absolute; left: .4em; z-index: -1">Если у вас не отображаются комментарии, значит либо запрещен доступ к сайту vk.com, либо стоит блокировщик всякого такого.</span></div></p><!--script type="text/javascript">VK.Widgets.Comments("vk_comments", {limit: 10, attach: "*"'+pageLink+'}'+pageID+');</script-->';
     }
 
     if(oParams.sTitle){
@@ -304,7 +307,7 @@ function createTablePage(oSrc, sMod) {
     var sDescription = oSrc.description? "\n<p>"+oSrc.description+"</p>" : "";
     var sDescriptionMore = oSrc.descriptionMore? "\n<p>"+oSrc.descriptionMore+"</p>" : "";
     var sURL = oSrc.url;
-    var sRandom = oSrc.name;
+    var sRandom = oSrc.name.replace(/\s+/g, "_");
     var aTables = [];
     var aSchemes = oSrc.schemes;
     var aSrc = oSrc.src;
@@ -357,7 +360,7 @@ function createTablePage(oSrc, sMod) {
                    sDescription+
                    sDescriptionMore+
                    aTables.join("") +
-                   "\n<p class='noRedString'>"+sSourceTitle+": "+sLink+"</p>" +
+                   (sSource?"\n<p class='noRedString'>"+sSourceTitle+": "+sLink+"</p>": "") +
                    "\n<p class='noRedString'>"+sRandomizer+"</p>" +
                    "<hr>"+
                    sGoback +
@@ -427,6 +430,7 @@ function createTexts(sSourcePath, sOutputPath) {
 
       const $ = cheerio.load(sourceText);
      // if(!$(".notready").length>0){
+       //console.log($)
         if(bNotReady) {
           $("h1").eq(0).addClass("notready");
         }
@@ -434,14 +438,15 @@ function createTexts(sSourcePath, sOutputPath) {
           $("h1").eq(0).addClass("hidetilldate");
         }
         const title = $("h1").eq(0).text();
-				let sDescription = "";
+        let sDescription = "";
         if($('.description').eq(0) && $('.description').eq(0).html() != null) {
           sDescription = $('.description').eq(0).text();
         } else if($("img").eq(0) && $("img").eq(0).parent().next("p")) {
           sDescription = $("img").eq(0).parent().next("p").text();
-        }   
+        }    
+        
         const taglist = $('.hashtags').eq(0)? getTaglist($('.hashtags').eq(0).text()) : "";
-
+        
         let dateString = $('.date').eq(0)? $('.date').eq(0).text() : "";
         if(dateString) {
           const aDate = dateString.split(".");
@@ -464,8 +469,8 @@ function createTexts(sSourcePath, sOutputPath) {
         const img_800 = img.replace(".","__800.");
         const aImg = [img, img_800, img_500, img_300];
         if($("img").length > 0) {
-          $("img").attr('src', img_300);
-          $("img").attr('srcset', img_500+" 500w, "+img_800+" 800w");
+          $("img").eq(0).attr('src', img_300);
+          $("img").eq(0).attr('srcset', img_500+" 500w, "+img_800+" 800w");
         }
 
         const sGoback = "\n<p class='noRedString breadcrumps'>"+sGoToMain+sGoBackDelimiter+"<a href='/archive'>"+sArchiveTitle+"</a>"+sGoBackDelimiter+"<a href='/archive/articles'>"+sArticlesTitle+"</a>"+sGoBackDelimiter + title+"</p>";
@@ -474,10 +479,7 @@ function createTexts(sSourcePath, sOutputPath) {
         $("p").last().after("<hr>"+sGoback);
         const content = $.html()+taglist;
 
-				fileName = fileName.replace(/\s+/g, "_");
-				console.log("");
-				console.log(sDescription);
-				console.log("");
+		fileName = fileName.replace(/\s+/g, "_");
         const page = createPage(sTemplate, content, {sDescription: sDescription, sTitle: title, oImage: aImg, isComments: true, isLikes: true, pageLink: "/archive/articles/"+fileName});
         savePage(page, sOutputPath + "/" + fileName, "sinc");
       //}
@@ -499,7 +501,7 @@ function createTextList(sSourcePath, sOutputPath) {
       if(!$(".notready").length>0){
         const fileTitle = $('h1').text();
         const description = ($('.description').eq(0) && $('.description').eq(0).html() != null)? $('.description').eq(0).html() : $("#content img").eq(0).parent().next("p").text();
-
+        
         const taglist = $('.hashtags').eq(0)? $('.hashtags').eq(0).text() : "";
         let dateString = ($('.date').eq(0) && $('.date').eq(0).find("time"))? $('.date').eq(0).find("time").text() : "";
         //console.log(fileName+": "+dateString);
@@ -542,7 +544,6 @@ function createTextList(sSourcePath, sOutputPath) {
   const sGoback = "\n<p class='noRedString breadcrumps'>"+sGoToMain+sGoBackDelimiter+"<a href='/archive'>"+sArchiveTitle+"</a>"+sGoBackDelimiter+sArticlesTitle+"</p>";
   const $Page = cheerio.load(sGlobalTextsList);
   $Page("h1").after(sGoback);
-
   const sPage = createPage(sTemplate, $Page.html(), {pageLink: "/archive/articles/", sTitle: sArticlesTitle, oImage: aImg, ifFilteScript: true});
   savePage(sPage, sPathToTextOutput + "/index.html");
   //savePage(sPage, "../articles.html");
@@ -599,9 +600,8 @@ function createInnerContent(sSourcePath, sOutputPath, oParams){
         $("p").last().after("<hr>"+sGoback);
         const content = $.html()+taglist;
 
-				fileName = fileName.replace(/\s+/g, "_");
+		fileName = fileName.replace(/\s+/g, "_");
         const page = createPage(sTemplate, content, {sTitle: title, oImage: aImg, isComments: true, isLikes: true, pageLink: "/archive/articles/"+fileName});
-
         savePage(page, sOutputPath + "/" + fileName, "sinc");
       //}
     }
@@ -638,7 +638,7 @@ function createOthers(sSourcePath, sOutputPath) {
         dateString = sPubDate + "<time pubdate datetime='"+sYear+"-"+sMonth+"-"+sDay+"' >"+dateString+"</time>";
         $('.date').eq(0).html(dateString);
       }
-
+      
       let aImg = [];
       for(var i=0; i<$("img").length; i++) {
         aImg.push($("img").eq(i).attr('src'));
@@ -656,10 +656,8 @@ function createOthers(sSourcePath, sOutputPath) {
       const content = $.html() + taglist;
       //console.dir(content);
 
-
-	  	fileName = fileName.replace(/\s+/g, "_");
+		fileName = fileName.replace(/\s+/g, "_");
       const page = createPage(sTemplate, content, {sTitle: title, oImage: aImg, isComments: true, isLikes: true, pageLink: "/archive/other/"+fileName});
-
       savePage(page, sOutputPath + "/" + fileName, "sinc");
     }
   });
@@ -714,9 +712,7 @@ function createOtherList(sSourcePath, sOutputPath) {
   const sGoback = "\n<p class='noRedString breadcrumps'>"+sGoToMain+sGoBackDelimiter+"<a href='/archive'>"+sArchiveTitle+"</a>"+sGoBackDelimiter+sOthersTitle+"</p>";
   const $Page = cheerio.load(sGlobalOthersList);
   $Page("h1").after(sGoback);
-
   const sPage = createPage(sTemplate, $Page.html(), {pageLink: "/archive/other",  sTitle: sOthersTitle, oImage:aImg, ifFilteScript: false});
-
   savePage(sPage, sOutputPath + "/index.html");
   //savePage(sPage, "../other.html");
 }
@@ -731,9 +727,7 @@ function createIndexPage() {
   const sStartContent = sGlobalTablesList + sGlobalTextsList + sGlobalOthersList;
   const sFinishContent = sStartContent.replace(/\bh2\b/gi, "h3").replace(/\bh1\b/gi, "h2");
 
-
   const sPage = createPage(sTemplate, sHeader + sPrevText + sFinishContent, {pageLink: "/archive/",sTitle: "Архив", ifFilteScript: true});
-
   savePage(sPage, "../index.html");
   //savePage(sPage, "../../archive.html");
 }

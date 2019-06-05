@@ -13,7 +13,12 @@ MD2HTMLconverter.setOption('rawHeaderId', true); // Remove only spaces, ' and " 
 
 /// articles index page
 const sPathToSrc = '../../random/js/items.js';
-const RandomItems = require(sPathToSrc);
+let  RandomItems;
+try{
+	RandomItems = require(sPathToSrc);
+} catch (err) {
+	console.log("Can't load random items");
+}
 const sPathToTmp = '../../index.html';
 const sPathToTextSource = '../source';
 const sPathToTextOutput = '../articles';
@@ -83,6 +88,7 @@ function fixDate(sDt) {
 
 // get list of articles with random tables
 function getTablesList(sImage) {
+	if(!RandomItems) return "";
   var aList = [];
   if(sImage == undefined)
      sImage="";
@@ -373,6 +379,7 @@ function createTablePage(oSrc, sMod) {
 
 // just loop to create article's pages with tables
 function createTables() {
+	if(!RandomItems) return;
   console.log("Render table's articles");
   for(var i=0; RandomItems.l[i]; i++) {
     for(var j=0; RandomItems.l[i].list[j]; j++) {

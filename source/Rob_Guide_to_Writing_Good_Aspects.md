@@ -109,5 +109,5 @@
 
 
 <p class='date noRedString'>15.01.2018</p>
-<p class='hashtags'>FateCore, Aspect, Advice</p>
+<p class='hashtags'>Fate, FateCore, Aspect, Advice</p>
 <p class='noRedString'>Источник: <a href='https://plus.google.com/+RobertHanz/posts/RiPHDaSa6Yg'>Rob's Guide to Writing Good Aspects</a></p>

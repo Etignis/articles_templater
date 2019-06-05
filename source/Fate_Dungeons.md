@@ -1,8 +1,12 @@
-# Подземелья в Fate
+# Подземелья в Fate - Сцены и сценарии
 
 ![](archive/img/articles/Fate_Dungeons.jpg)
 
 В первую очередь приключения в подземелье, конечно же, ассоциируются с Dundeon&Dragons, решениями свернуть направо или налево и долгими сражениями. Fate требует иного подхода и дает новый опыт, так как на первое место выходит история. Для начала рассмотрим сцены и сценарии. 
+
+### Связанные статьи
+* [Подземелья в Fate 2 - Ловушки](https://tentaculus.ru/archive/articles/Fate_Dungeons-Traps.html)
+* [Подземелья в Fate 3 - Тайны, Загадки, Секреты](https://tentaculus.ru/archive/articles/Fate_Dungeons-Secrets.html)
 
 ##  Cцены и сценарии
 
@@ -34,6 +38,6 @@
 
 
 <p class='date noRedString'>28.05.2019</p>
-<p class='hashtags'>Fate, Master, Advice, Dungeon</p>
+<p class='hashtags'>Fate, FateCore, FAE, Master, Advice, Dungeon</p>
 <p class='noRedString'>Источник: <a href='https://rpg.nathanhare.net/2016/10/22/dungeons-fate-scenes-and-scenarios'>RPG Stuff - Dungeons in Fate: Scenes and Scenarios</a></p>
 <p class='noRedString'>Автор арта: <a href='https://www.deviantart.com/jcbarquet'>jcbarquet</a></p>

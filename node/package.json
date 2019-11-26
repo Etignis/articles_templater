@@ -16,6 +16,7 @@
     "gm": "^1.23.1",
     "request": "^2.83.0",
     "showdown": "^1.7.5",
+    "showdown-table": "^1.0.1",
     "yargs": "^8.0.2"
   }
 }

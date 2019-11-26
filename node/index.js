@@ -5,7 +5,7 @@ const argv = require('yargs').argv;
 const cheerio = require('cheerio');
 const path = require('path');
 const showdown  = require('showdown');
-const MD2HTMLconverter = new showdown.Converter();
+const MD2HTMLconverter = new showdown.Converter({tables: true});
 MD2HTMLconverter.setOption('strikethrough', true); // ~~ stroken ~~
 MD2HTMLconverter.setOption('customizedHeaderId', true); // ## Sample header {real-id}     will use real-id as id
 MD2HTMLconverter.setOption('rawHeaderId', true); // Remove only spaces, ' and " from generated header ids
@@ -358,6 +358,10 @@ function createTablePage(oSrc, sMod) {
       aImg = [sImage, img_800, img_500, img_300];
 
       img =  "<img src='"+img_300+"' srcset='"+img_500+" 500w, "+img_800+" 800w, "+sImage+" 2000w' style='width: 100%' alt=''>";
+			
+			if(/https?:\/\//.test(sImage)) {
+				img =  "<img src='"+sImage+"'  style='width: 100%' alt=''>";
+			}
     }
 
     var sContent = "<h1>"+sTitle+"</h1>"+
@@ -475,10 +479,13 @@ function createTexts(sSourcePath, sOutputPath) {
         const img_500 = img.replace(".","__500.");
         const img_800 = img.replace(".","__800.");
         const aImg = [img, img_800, img_500, img_300];
-        if($("img").length > 0) {
+        if($("img").length > 0 && !/https?:\/\//.test(img)) {
           $("img").eq(0).attr('src', img_300);
           $("img").eq(0).attr('srcset', img_500+" 500w, "+img_800+" 800w");
         }
+				if(/https?:\/\//.test(img)) {
+					$("img").eq(0).attr('src', img);
+				}
 
         const sGoback = "\n<p class='noRedString breadcrumps'>"+sGoToMain+sGoBackDelimiter+"<a href='/archive'>"+sArchiveTitle+"</a>"+sGoBackDelimiter+"<a href='/archive/articles'>"+sArticlesTitle+"</a>"+sGoBackDelimiter + title+"</p>";
 

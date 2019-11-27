@@ -5,8 +5,15 @@ const argv = require('yargs').argv;
 const cheerio = require('cheerio');
 const path = require('path');
 const showdown  = require('showdown');
-const MD2HTMLconverter = new showdown.Converter({tables: true});
+showdown.extension(`showdownSpoiler`, {
+  type: `lang`,
+  filter: function (text) {
+    return text.replace(/!([^\r\n]+)[\r\n]+([^!]+)!/ig, "<details><summary>$1</summary>$2</details>")
+  });
+}
+const MD2HTMLconverter = new showdown.Converter({tables: true,  extensions: [`showdownSpoiler`] });
 MD2HTMLconverter.setOption('strikethrough', true); // ~~ stroken ~~
+MD2HTMLconverter.setOption('literalMidWordUnderscores', true); // qq__undeer__
 MD2HTMLconverter.setOption('customizedHeaderId', true); // ## Sample header {real-id}     will use real-id as id
 MD2HTMLconverter.setOption('rawHeaderId', true); // Remove only spaces, ' and " from generated header ids
 // MD2HTMLconverter.setOption('ghCompatibleHeaderId', true); // Generate header ids compatible with github style
